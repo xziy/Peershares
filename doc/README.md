@@ -1,8 +1,9 @@
-Litecoin 0.8.3 BETA
+Franko 0.8.3 BETA
 ====================
 
 Copyright (c) 2009-2013 Bitcoin Developers
-Copyright (c) 2011-2013 Litecoin Developers
+
+Copyright (c) 2012-2013 Franko Developers
 
 Distributed under the MIT/X11 software license, see the accompanying
 file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -12,25 +13,23 @@ cryptographic software written by Eric Young ([eay@cryptsoft.com](mailto:eay@cry
 
 Intro
 ---------------------
-Litecoin is a free open source peer-to-peer electronic cash system that is
-completely decentralized, without the need for a central server or trusted
-parties.  Users hold the crypto keys to their own money and transact directly
-with each other, with the help of a P2P network to check for double-spending.
+Franko is anonymous internet money that can be instantly transferred to anyone in the world over a public peer-to-peer network ran by volunteers .
+
 
 
 Setup
 ---------------------
-You need the Qt4 run-time libraries to run Litecoin-Qt. On Debian or Ubuntu:
+You need the Qt4 run-time libraries to run Franko-Qt. On Debian or Ubuntu:
 	`sudo apt-get install libqtgui4`
 
 Unpack the files into a directory and run:
 
-- bin/32/litecoin-qt (GUI, 32-bit)
-- bin/32/litecoind (headless, 32-bit)
-- bin/64/litecoin-qt (GUI, 64-bit)
-- bin/64/litecoind (headless, 64-bit)
+- bin/32/franko-qt (GUI, 32-bit)
+- bin/32/frankod (headless, 32-bit)
+- bin/64/franko-qt (GUI, 64-bit)
+- bin/64/frankod (headless, 64-bit)
 
-See the documentation at the [Litecoin Wiki](http://litecoin.info)
+See [Franko Support](http://franko.freshdesk.com)
 for help and more information.
 
 
