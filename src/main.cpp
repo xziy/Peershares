@@ -2085,7 +2085,7 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
         return state.DoS(100, error("CheckBlock() : size limits failed"));
 
     // Franko: Special short-term limits to avoid 10,000 BDB lock limit:
-    if (GetBlockTime() < 1376568000)  // stop enforcing 15 August 2013 00:00:00
+    if (GetBlockTime() < 1379203200)  // stop enforcing 15 September 2013 00:00:00
     {
         // Rule is: #unique txids referenced <= 4,500
         // ... to prevent 10,000 BDB lock exhaustion on old clients
@@ -2099,7 +2099,7 @@ bool CBlock::CheckBlock(CValidationState &state, bool fCheckPOW, bool fCheckMerk
         }
         size_t nTxids = setTxIn.size();
         if (nTxids > 4500)
-            return error("CheckBlock() : 15 August maxlocks violation");
+            return error("CheckBlock() : 15 September maxlocks violation");
     }
 
     // Check proof of work matches claimed amount
