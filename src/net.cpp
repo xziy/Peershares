@@ -1196,6 +1196,8 @@ static const char *strMainNetDNSSeed[][2] = {
     {"briefcaseit.com","tokyo.briefcaseit.com"}, //JAPAN,TOKYO
     {"copiamarket.com","dnsseed.copiamarket.com"}, //US
     {"dencoinpools.com","frk.dencoinpools.com"},//US
+    {"crypto-knight.org","www.crypto-knight.org"},//US
+    {"frankopedia.com","www.frankopedia.com"},//US
     {NULL, NULL}
 };
 
