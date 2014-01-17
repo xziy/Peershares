@@ -1240,7 +1240,7 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const CBloc
 
 unsigned int static GetNextWorkRequired_V2(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
-        static const int64        BlocksTargetSpacing                        = 2.5 * 60; // 2.5 minutes
+        static const int64        BlocksTargetSpacing                        = .5 * 60; // 30 seconds
         unsigned int                TimeDaySeconds                                = 60 * 60 * 24;
         int64                                PastSecondsMin                                = TimeDaySeconds * 0.25;
         int64                                PastSecondsMax                                = TimeDaySeconds * 7;
@@ -1254,10 +1254,10 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
 {
         int DiffMode = 1;
         if (fTestNet) {
-                if (pindexLast->nHeight+1 >= 2237) { DiffMode = 2; }
+                if (pindexLast->nHeight+1 >= 50) { DiffMode = 2; }
         }
         else {
-                if (pindexLast->nHeight+1 >= 62773) { DiffMode = 2; }
+                if (pindexLast->nHeight+1 >= 420000) { DiffMode = 2; }
         }
         
         if                (DiffMode == 1) { return GetNextWorkRequired_V1(pindexLast, pblock); }
