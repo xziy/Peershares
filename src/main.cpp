@@ -1242,10 +1242,10 @@ unsigned int static GetNextWorkRequired_V2(const CBlockIndex* pindexLast, const 
 {
         static const int64        BlocksTargetSpacing                        = .5 * 60; // 30 seconds
         unsigned int                TimeDaySeconds                                = 60 * 60 * 24;
-        int64                                PastSecondsMin                                = TimeDaySeconds * 0.25;
-        int64                                PastSecondsMax                                = TimeDaySeconds * 7;
-        uint64                                PastBlocksMin                                = PastSecondsMin / BlocksTargetSpacing;
-        uint64                                PastBlocksMax                                = PastSecondsMax / BlocksTargetSpacing;        
+        int64                       PastSecondsMin                                = TimeDaySeconds * 0.01;
+        int64                       PastSecondsMax                                = TimeDaySeconds * 0.14;
+        uint64                      PastBlocksMin                                = PastSecondsMin / BlocksTargetSpacing;
+        uint64                      PastBlocksMax                                = PastSecondsMax / BlocksTargetSpacing;        
         
         return KimotoGravityWell(pindexLast, pblock, BlocksTargetSpacing, PastBlocksMin, PastBlocksMax);
 }
