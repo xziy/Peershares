@@ -1211,7 +1211,7 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const CBloc
                 if (PastRateActualSeconds != 0 && PastRateTargetSeconds != 0) {
                 PastRateAdjustmentRatio                        = double(PastRateTargetSeconds) / double(PastRateActualSeconds);
                 }
-                EventHorizonDeviation                        = 1 + (0.7084 * pow((double(PastBlocksMass)/double(144)), -1.228));
+                EventHorizonDeviation                        = 1 + (0.7084 * pow((double(PastBlocksMass)/double(28.2)), -1.228));
                 EventHorizonDeviationFast                = EventHorizonDeviation;
                 EventHorizonDeviationSlow                = 1 / EventHorizonDeviation;
                 
@@ -1257,7 +1257,7 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
                 if (pindexLast->nHeight+1 >= 50) { DiffMode = 2; }
         }
         else {
-                if (pindexLast->nHeight+1 >= 420000) { DiffMode = 2; }
+                if (pindexLast->nHeight+1 >= 400000) { DiffMode = 2; }
         }
         
         if                (DiffMode == 1) { return GetNextWorkRequired_V1(pindexLast, pblock); }
