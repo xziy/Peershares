@@ -1,8 +1,6 @@
 #include "distribution.h"
 
-const int64 PEERCOIN_TX_FEE = 10000;
-
-void DividendDistributor::Distribute(int64 nDistributedAmount)
+void DividendDistributor::Distribute(int64 nDistributedAmount, int64 nMinimumPayout)
 {
     BalanceMap mapRetainedBalance(mapBalance);
     bool bMustRedistribute = true;
@@ -12,7 +10,6 @@ void DividendDistributor::Distribute(int64 nDistributedAmount)
         bMustRedistribute = false;
 
         nTotalDistributed = 0;
-        nTotalFee = 0;
         vDistribution.clear();
 
         BalanceMap::iterator it;
@@ -28,19 +25,17 @@ void DividendDistributor::Distribute(int64 nDistributedAmount)
         it = mapRetainedBalance.begin();
         while (it != mapRetainedBalance.end())
         {
-            int64 nFee = PEERCOIN_TX_FEE;
-            int64 nDistributed = it->second * nDistributedAmount / nTotalBalance - nFee;
-            if (nDistributed <= 0)
+            int64 nDistributed = it->second * nDistributedAmount / nTotalBalance;
+            if (nDistributed < nMinimumPayout)
             {
                 mapRetainedBalance.erase(it++);
                 bMustRedistribute = true;
                 continue;
             }
-            Distribution distribution(it->first, it->second, nDistributed, nFee);
+            Distribution distribution(it->first, it->second, nDistributed);
             vDistribution.push_back(distribution);
 
             nTotalDistributed += nDistributed;
-            nTotalFee += nFee;
 
             it++;
         }

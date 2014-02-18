@@ -9,11 +9,9 @@ protected:
     CBitcoinAddress addrPeercoin;
     int64 nDividendAmount;
 
-    int64 nTransactionFee;
-
 public:
-    Distribution(CBitcoinAddress addrPeershares, int64 nBalance, int64 nDividendAmount, int64 nTransactionFee)
-        : addrPeershares(addrPeershares), nBalance(nBalance), addrPeercoin(addrPeershares), nDividendAmount(nDividendAmount), nTransactionFee(nTransactionFee)
+    Distribution(CBitcoinAddress addrPeershares, int64 nBalance, int64 nDividendAmount)
+        : addrPeershares(addrPeershares), nBalance(nBalance), addrPeercoin(addrPeershares), nDividendAmount(nDividendAmount)
     {
     }
 
@@ -36,33 +34,25 @@ public:
     {
         return nDividendAmount;
     }
-
-    int64 GetTransactionFee() const
-    {
-        return nTransactionFee;
-    }
 };
 
 typedef std::map<const CBitcoinAddress, int64> BalanceMap;
 typedef std::vector<Distribution> DistributionVector;
-
-extern const int64 PEERCOIN_TX_FEE;
 
 class DividendDistributor
 {
 protected:
     const BalanceMap& mapBalance;
     int64 nTotalDistributed;
-    int64 nTotalFee;
 
     DistributionVector vDistribution;
 
 public:
-    DividendDistributor(const BalanceMap& mapBalance) : mapBalance(mapBalance), nTotalDistributed(0), nTotalFee(0)
+    DividendDistributor(const BalanceMap& mapBalance) : mapBalance(mapBalance), nTotalDistributed(0)
     {
     }
 
-    void Distribute(int64 nDistributedAmount);
+    void Distribute(int64 nDistributedAmount, int64 nMinimumPayout);
 
     const DistributionVector& GetDistributions() const
     {
@@ -82,10 +72,5 @@ public:
     int64 TotalDistributed() const
     {
         return nTotalDistributed;
-    }
-
-    int64 TotalFee() const
-    {
-        return nTotalFee;
     }
 };

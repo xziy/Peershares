@@ -12,19 +12,11 @@ BOOST_AUTO_TEST_CASE( test_simple_distribution )
     mapBalance[CBitcoinAddress(2)] = 30;
 
     DividendDistributor distributor(mapBalance);
-    distributor.Distribute(1000000);
+    distributor.Distribute(1000000, 10000);
 
-    const DistributionVector vDistribution = distributor.GetDistributions();
-    DistributionVector::const_iterator it;
-
-    BOOST_CHECK_EQUAL(240000, distributor.GetDistribution(CBitcoinAddress(1)).GetDividendAmount());
-    BOOST_CHECK_EQUAL(10000, distributor.GetDistribution(CBitcoinAddress(1)).GetTransactionFee());
-
-    BOOST_CHECK_EQUAL(740000, distributor.GetDistribution(CBitcoinAddress(2)).GetDividendAmount());
-    BOOST_CHECK_EQUAL(10000, distributor.GetDistribution(CBitcoinAddress(2)).GetTransactionFee());
-
-    BOOST_CHECK_EQUAL(980000, distributor.TotalDistributed());
-    BOOST_CHECK_EQUAL(20000, distributor.TotalFee());
+    BOOST_CHECK_EQUAL(250000, distributor.GetDistribution(CBitcoinAddress(1)).GetDividendAmount());
+    BOOST_CHECK_EQUAL(750000, distributor.GetDistribution(CBitcoinAddress(2)).GetDividendAmount());
+    BOOST_CHECK_EQUAL(1000000, distributor.TotalDistributed());
 }
 
 BOOST_AUTO_TEST_CASE( test_off_decimal_distribution )
@@ -36,44 +28,34 @@ BOOST_AUTO_TEST_CASE( test_off_decimal_distribution )
     mapBalance[CBitcoinAddress(3)] = 1;
 
     DividendDistributor distributor(mapBalance);
-    distributor.Distribute(1000000);
+    distributor.Distribute(1000000, 10000);
 
-    const DistributionVector vDistribution = distributor.GetDistributions();
-    DistributionVector::const_iterator it;
-
-    BOOST_CHECK_EQUAL(323333, distributor.GetDistribution(CBitcoinAddress(1)).GetDividendAmount());
-    BOOST_CHECK_EQUAL(10000, distributor.GetDistribution(CBitcoinAddress(1)).GetTransactionFee());
-
-    BOOST_CHECK_EQUAL(323333, distributor.GetDistribution(CBitcoinAddress(2)).GetDividendAmount());
-    BOOST_CHECK_EQUAL(10000, distributor.GetDistribution(CBitcoinAddress(2)).GetTransactionFee());
-
-    BOOST_CHECK_EQUAL(323333, distributor.GetDistribution(CBitcoinAddress(3)).GetDividendAmount());
-    BOOST_CHECK_EQUAL(10000, distributor.GetDistribution(CBitcoinAddress(3)).GetTransactionFee());
-
-    BOOST_CHECK_EQUAL(969999, distributor.TotalDistributed());
-    BOOST_CHECK_EQUAL(30000, distributor.TotalFee());
+    BOOST_CHECK_EQUAL(333333, distributor.GetDistribution(CBitcoinAddress(1)).GetDividendAmount());
+    BOOST_CHECK_EQUAL(333333, distributor.GetDistribution(CBitcoinAddress(2)).GetDividendAmount());
+    BOOST_CHECK_EQUAL(333333, distributor.GetDistribution(CBitcoinAddress(3)).GetDividendAmount());
+    BOOST_CHECK_EQUAL(999999, distributor.TotalDistributed());
 }
 
 BOOST_AUTO_TEST_CASE( test_not_enough_dividends_to_pay_fee )
 {
     BalanceMap mapBalance;
 
-    mapBalance[CBitcoinAddress(1)] = 99;
-    mapBalance[CBitcoinAddress(2)] = 1;
+    mapBalance[CBitcoinAddress(1)] = 90;
+    mapBalance[CBitcoinAddress(2)] = 10;
 
     DividendDistributor distributor(mapBalance);
-    distributor.Distribute(100000);
+    distributor.Distribute(100000, 10001);
 
-    const DistributionVector vDistribution = distributor.GetDistributions();
-    DistributionVector::const_iterator it;
-
-    BOOST_CHECK_EQUAL(90000, distributor.GetDistribution(CBitcoinAddress(1)).GetDividendAmount());
-    BOOST_CHECK_EQUAL(10000, distributor.GetDistribution(CBitcoinAddress(1)).GetTransactionFee());
-
+    BOOST_CHECK_EQUAL(100000, distributor.GetDistribution(CBitcoinAddress(1)).GetDividendAmount());
     BOOST_CHECK_EQUAL(1, distributor.GetDistributions().size());
+    BOOST_CHECK_EQUAL(100000, distributor.TotalDistributed());
 
-    BOOST_CHECK_EQUAL(90000, distributor.TotalDistributed());
-    BOOST_CHECK_EQUAL(10000, distributor.TotalFee());
+
+    distributor.Distribute(100000, 10000);
+
+    BOOST_CHECK_EQUAL( 90000, distributor.GetDistribution(CBitcoinAddress(1)).GetDividendAmount());
+    BOOST_CHECK_EQUAL( 10000, distributor.GetDistribution(CBitcoinAddress(2)).GetDividendAmount());
+    BOOST_CHECK_EQUAL(100000, distributor.TotalDistributed());
 }
 
 BOOST_AUTO_TEST_CASE( test_nobody_has_enough_funds )
@@ -84,14 +66,11 @@ BOOST_AUTO_TEST_CASE( test_nobody_has_enough_funds )
     mapBalance[CBitcoinAddress(2)] = 1;
 
     DividendDistributor distributor(mapBalance);
-    distributor.Distribute(20000);
-
-    const DistributionVector vDistribution = distributor.GetDistributions();
+    distributor.Distribute(20000, 10001);
 
     BOOST_CHECK_EQUAL(0, distributor.GetDistributions().size());
 
     BOOST_CHECK_EQUAL(0, distributor.TotalDistributed());
-    BOOST_CHECK_EQUAL(0, distributor.TotalFee());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
