@@ -1,4 +1,5 @@
 #include "base58.h"
+#include "json/json_spirit_value.h"
 
 class Distribution
 {
@@ -53,6 +54,7 @@ public:
     }
 
     void Distribute(double nDistributedAmount, double nMinimumPayout);
+    void GenerateOutputs(int nTransactions, std::vector<json_spirit::Object> &vTransactionOuts);
 
     const DistributionVector& GetDistributions() const
     {
