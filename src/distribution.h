@@ -4,13 +4,13 @@ class Distribution
 {
 protected:
     CBitcoinAddress addrPeershares;
-    int64 nBalance;
+    double nBalance;
 
     CBitcoinAddress addrPeercoin;
-    int64 nDividendAmount;
+    double nDividendAmount;
 
 public:
-    Distribution(CBitcoinAddress addrPeershares, int64 nBalance, int64 nDividendAmount)
+    Distribution(CBitcoinAddress addrPeershares, double nBalance, double nDividendAmount)
         : addrPeershares(addrPeershares), nBalance(nBalance), addrPeercoin(addrPeershares), nDividendAmount(nDividendAmount)
     {
     }
@@ -20,7 +20,7 @@ public:
         return addrPeershares;
     }
 
-    int64 GetBalance() const
+    double GetBalance() const
     {
         return nBalance;
     }
@@ -30,7 +30,7 @@ public:
         return addrPeercoin;
     }
 
-    int64 GetDividendAmount() const
+    double GetDividendAmount() const
     {
         return nDividendAmount;
     }
@@ -43,7 +43,7 @@ class DividendDistributor
 {
 protected:
     const BalanceMap& mapBalance;
-    int64 nTotalDistributed;
+    double nTotalDistributed;
 
     DistributionVector vDistribution;
 
@@ -52,7 +52,7 @@ public:
     {
     }
 
-    void Distribute(int64 nDistributedAmount, int64 nMinimumPayout);
+    void Distribute(double nDistributedAmount, double nMinimumPayout);
 
     const DistributionVector& GetDistributions() const
     {
@@ -69,7 +69,7 @@ public:
         throw std::runtime_error("Distribution not found");
     }
 
-    int64 TotalDistributed() const
+    double TotalDistributed() const
     {
         return nTotalDistributed;
     }

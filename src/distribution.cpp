@@ -1,6 +1,6 @@
 #include "distribution.h"
 
-void DividendDistributor::Distribute(int64 nDistributedAmount, int64 nMinimumPayout)
+void DividendDistributor::Distribute(double nDistributedAmount, double nMinimumPayout)
 {
     BalanceMap mapRetainedBalance(mapBalance);
     bool bMustRedistribute = true;
@@ -13,7 +13,7 @@ void DividendDistributor::Distribute(int64 nDistributedAmount, int64 nMinimumPay
         vDistribution.clear();
 
         BalanceMap::iterator it;
-        int64 nTotalBalance = 0;
+        double nTotalBalance = 0;
 
         it = mapRetainedBalance.begin();
         while (it != mapRetainedBalance.end())
@@ -25,7 +25,7 @@ void DividendDistributor::Distribute(int64 nDistributedAmount, int64 nMinimumPay
         it = mapRetainedBalance.begin();
         while (it != mapRetainedBalance.end())
         {
-            int64 nDistributed = it->second * nDistributedAmount / nTotalBalance;
+            double nDistributed = it->second * nDistributedAmount / nTotalBalance;
             if (nDistributed < nMinimumPayout)
             {
                 mapRetainedBalance.erase(it++);
