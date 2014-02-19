@@ -2226,24 +2226,43 @@ bool LoadBlockIndex(bool fAllowNew)
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1391723292;
+        block.nTime    = 1392771616;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
-        block.nNonce   = 179302059u;
+        block.nNonce   = 0;
 
         if (fTestNet)
         {
             block.nTime    = 1345090000;
             block.nNonce   = 122894938;
         }
+        
+        CBigNum bnTarget;
+        bnTarget.SetCompact(block.nBits);
+
+        while (block.GetHash() > bnTarget.getuint256())
+        {
+            if (block.nNonce % 1048576 == 0)
+                printf("n=%dM hash=%s\n", block.nNonce / 1048576,
+                       block.GetHash().ToString().c_str());
+            block.nTime = GetAdjustedTime();
+            block.nNonce++;
+        }
+     
+        printf("PPCoin Found Genesis Block:\n");
+        printf("genesis hash=%s\n", block.GetHash().ToString().c_str());
+        printf("merkle root=%s\n", block.hashMerkleRoot.ToString().c_str());
+        block.print();
+     
+        printf("PPCoin End Genesis Block\n");
 
         //// debug print
         printf("%s\n", block.GetHash().ToString().c_str());
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
-        assert(block.hashMerkleRoot == uint256("0x3c2d8f85fab4d17aac558cc648a1a58acff0de6deb890c29985690052c5993c2"));
+//        assert(block.hashMerkleRoot == uint256("0x3c2d8f85fab4d17aac558cc648a1a58acff0de6deb890c29985690052c5993c2"));
         block.print();
-        assert(block.GetHash() == hashGenesisBlock);
-        assert(block.CheckBlock());
+//        assert(block.GetHash() == hashGenesisBlock);
+//        assert(block.CheckBlock());
 
         // Start new block file
         unsigned int nFile;
