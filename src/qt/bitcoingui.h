@@ -47,6 +47,8 @@ public:
     */
     void setWalletModel(WalletModel *walletModel);
     
+    bool fLocalChainUpToDate;
+
 protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
