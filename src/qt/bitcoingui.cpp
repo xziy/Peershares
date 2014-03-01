@@ -27,6 +27,7 @@
 #include "guiutil.h"
 #include "rpcconsole.h"
 #include "wallet.h"
+#include "distributedivdialog.h"
 
 #ifdef Q_WS_MAC
 #include "macdockiconhandler.h"
@@ -870,5 +871,6 @@ void BitcoinGUI::showNormalIfMinimized()
 
 void BitcoinGUI::distributeDividendsClicked()
 {
-	QMessageBox::information(NULL, "To be implemented","To be implemented");
+    DistributeDivDialog dd;
+    dd.exec();
 }
