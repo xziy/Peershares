@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include "QStandardItemModel"
+#include <QMessageBox>
 #include <ctime>
 
 static int nscans=0;
@@ -203,7 +204,7 @@ void DistributeDivDialog::on_getShareholdsListButton_clicked()
     nSecsSinceCutoff=scanner.nSecsSinceCutoff;
 
     dist.resize(scanner.mapAB.size());
-    map<CBitcoinAddress,int64>::const_iterator it=scanner.mapAB.begin();
+    map<DummyCoinAddr,int64>::const_iterator it=scanner.mapAB.begin();
     for (unsigned int i=0;i<scanner.mapAB.size();i++,it++)
     {
         dist[i].addrPS="ps_"+it->first;
@@ -246,4 +247,9 @@ void DistributeDivDialog::on_exportButton_clicked()
 
     fclose(fp);
     QMessageBox::about(this,"OK","Successfully save to file: "+fn);
+}
+
+void DistributeDivDialog::on_buttonBox_accepted()
+{
+    QMessageBox::about(this,"OK","Pay dividend.");
 }

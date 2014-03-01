@@ -1,6 +1,16 @@
 #ifndef DISTRIBUTEDIVDIALOG_H
 #define DISTRIBUTEDIVDIALOG_H
 
+#include <string>
+#include <map>
+#include <vector>
+using namespace std;
+
+//#include "base58.h"
+//#include "uint256.h"
+typedef long long int64;
+typedef string DummyCoinAddr;
+
 #include <QDialog>
 #include <QProgressDialog>
 #include <QThread>
@@ -9,7 +19,6 @@ namespace Ui {
 class DistributeDivDialog;
 }
 
-class CBitcoinAddress;
 
 class AddrBalanceScanner : public QThread
 {
@@ -25,7 +34,7 @@ public:
     void Scan(unsigned int _cutoffTime);
 
     //scanning result
-    map<CBitcoinAddress,int64> mapAB;
+    map<DummyCoinAddr,int64> mapAB;
     std::string errorMsg;
     int nSecsSinceCutoff;
 
@@ -68,9 +77,9 @@ signals:
 
 struct DummyDistribution
 {
-    CBitcoinAddress addrPS;
+    DummyCoinAddr addrPS;
     int64 balPS;
-    CBitcoinAddress addrPC;
+    DummyCoinAddr addrPC;
     int64 dividend;
     int fee;
 
@@ -108,7 +117,7 @@ private slots:
 
     void on_exportButton_clicked();
 
-
+    void on_buttonBox_accepted();
 };
 
 #endif // DISTRIBUTEDIVDIALOG_H
