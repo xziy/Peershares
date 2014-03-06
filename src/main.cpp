@@ -32,8 +32,8 @@ unsigned int nTransactionsUpdated = 0;
 map<uint256, CBlockIndex*> mapBlockIndex;
 set<pair<COutPoint, unsigned int> > setStakeSeen;
 uint256 hashGenesisBlock = hashGenesisBlockOfficial;
-static CBigNum bnProofOfWorkLimit(~uint256(0) >> 128);
-static CBigNum bnInitialHashTarget(~uint256(0) >> 136);
+static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20);
+static CBigNum bnInitialHashTarget(~uint256(0) >> 24);
 unsigned int nStakeMinAge = STAKE_MIN_AGE;
 int nCoinbaseMaturity = COINBASE_MATURITY_PPC;
 CBlockIndex* pindexGenesisBlock = NULL;
@@ -828,7 +828,7 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 
 int64 GetProofOfWorkReward(unsigned int nBits)
 {
-    return IPO_SHARES / PROOF_OF_WORK_BLOCKS; //this will only be used to create initial shares
+    return IPO_SHARES * COIN / PROOF_OF_WORK_BLOCKS; //this will only be used to create initial shares
 }
 
 // ppcoin: miner's coin stake is rewarded based on coin age spent (coin-days)
@@ -2216,7 +2216,7 @@ bool LoadBlockIndex(bool fAllowNew)
         // Genesis block
         const char* pszTimestamp = "Matonis 07-AUG-2012 Parallel Currencies And The Roadmap To Monetary Freedom";
         CTransaction txNew;
-        txNew.nTime = 1345083810;
+        txNew.nTime = 1394140389;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 486604799 << CBigNum(9999) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
@@ -2226,7 +2226,7 @@ bool LoadBlockIndex(bool fAllowNew)
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1392771616;
+        block.nTime    = 1394140389;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
         block.nNonce   = 0;
 
@@ -2246,7 +2246,6 @@ bool LoadBlockIndex(bool fAllowNew)
             if (block.nNonce % 1048576 == 0)
                 printf("n=%dM hash=%s\n", block.nNonce / 1048576,
                        block.GetHash().ToString().c_str());
-            block.nTime = GetAdjustedTime();
             block.nNonce++;
         }
      
@@ -2261,10 +2260,10 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("%s\n", block.GetHash().ToString().c_str());
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
-//        assert(block.hashMerkleRoot == uint256("0x3c2d8f85fab4d17aac558cc648a1a58acff0de6deb890c29985690052c5993c2"));
+        assert(block.hashMerkleRoot == uint256("0xf88246c72a053cc2176dbf2ac884bcf79f021bba9c2c3c8fccc0735c37d9354c"));
         block.print();
-//        assert(block.GetHash() == hashGenesisBlock);
-//        assert(block.CheckBlock());
+        assert(block.GetHash() == hashGenesisBlock);
+        assert(block.CheckBlock());
 
         // Start new block file
         unsigned int nFile;
