@@ -2241,6 +2241,8 @@ bool LoadBlockIndex(bool fAllowNew)
 
         while (block.GetHash() > bnTarget.getuint256())
         {
+            if (fRequestShutdown)
+                return false;
             if (block.nNonce % 1048576 == 0)
                 printf("n=%dM hash=%s\n", block.nNonce / 1048576,
                        block.GetHash().ToString().c_str());
