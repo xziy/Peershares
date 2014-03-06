@@ -3570,9 +3570,9 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, CWallet* pwallet, bool fProofOfS
         return NULL;
 	
 	//allow only PoW blocks at first, later only PoS blocks
-    if (pblock->IsProofOfStake() && nBestHeight <= PROOF_OF_WORK_BLOCKS)
+    if (fProofOfStake && nBestHeight <= PROOF_OF_WORK_BLOCKS)
 		return NULL;
-    if (pblock->IsProofOfWork() && nBestHeight > PROOF_OF_WORK_BLOCKS)
+    if (!fProofOfStake && nBestHeight > PROOF_OF_WORK_BLOCKS)
 		return NULL;
 
 
