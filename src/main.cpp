@@ -828,7 +828,7 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 
 int64 GetProofOfWorkReward(unsigned int nBits)
 {
-    return IPO_SHARES * COIN / PROOF_OF_WORK_BLOCKS; //this will only be used to create initial shares
+    return IPO_SHARES / PROOF_OF_WORK_BLOCKS; //this will only be used to create initial shares
 }
 
 // ppcoin: miner's coin stake is rewarded based on coin age spent (coin-days)
