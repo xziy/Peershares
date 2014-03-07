@@ -10,7 +10,7 @@
 using namespace std;
 
 // Protocol switch time of v0.3 kernel protocol
-unsigned int nProtocolV03SwitchTime     = 1363800000;
+unsigned int nProtocolV03SwitchTime     = 1394841600; // 2014-03-15 00:00:00 UTC
 unsigned int nProtocolV03TestSwitchTime = 1359781000;
 
 // Modifier interval: time to elapse before new modifier is computed
