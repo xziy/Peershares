@@ -872,6 +872,14 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
     return pindex;
 }
 
+unsigned int static GetInitialTarget(bool fProofOfStake)
+{
+    if (fProofOfStake)
+        return CBigNum(~uint256(0) >> 20).GetCompact();
+    else
+        return bnInitialHashTarget.GetCompact();
+}
+
 unsigned int static GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
     if (pindexLast == NULL)
@@ -879,10 +887,10 @@ unsigned int static GetNextTargetRequired(const CBlockIndex* pindexLast, bool fP
 
     const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
     if (pindexPrev->pprev == NULL)
-        return bnInitialHashTarget.GetCompact(); // first block
+        return GetInitialTarget(fProofOfStake); // first block
     const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
     if (pindexPrevPrev->pprev == NULL)
-        return bnInitialHashTarget.GetCompact(); // second block
+        return GetInitialTarget(fProofOfStake); // second block
 
     int64 nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
 
