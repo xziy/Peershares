@@ -36,6 +36,7 @@ set<pair<COutPoint, unsigned int> > setStakeSeen;
 uint256 hashGenesisBlock = hashGenesisBlockOfficial;
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20);
 static CBigNum bnInitialHashTarget(~uint256(0) >> 24);
+static CBigNum bnInitialProofOfStakeHashTarget(~uint256(0) >> 20);
 unsigned int nStakeMinAge = STAKE_MIN_AGE;
 int nCoinbaseMaturity = COINBASE_MATURITY_PPC;
 CBlockIndex* pindexGenesisBlock = NULL;
@@ -877,7 +878,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 unsigned int static GetInitialTarget(bool fProofOfStake)
 {
     if (fProofOfStake)
-        return CBigNum(~uint256(0) >> 20).GetCompact();
+        return bnInitialProofOfStakeHashTarget.GetCompact();
     else
         return bnInitialHashTarget.GetCompact();
 }
@@ -2194,6 +2195,7 @@ bool LoadBlockIndex(bool fAllowNew)
         nStakeMinAge = 300; // test net min age is 5 minutes
         nCoinbaseMaturity = 60;
         bnInitialHashTarget = CBigNum(~uint256(0) >> 20);
+        bnInitialProofOfStakeHashTarget = CBigNum(~uint256(0) >> 16);
         nModifierInterval = 60 * 20; // test net modifier interval is 20 minutes
     }
 
