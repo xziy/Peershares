@@ -9,6 +9,9 @@ using namespace json_spirit;
 
 void DividendDistributor::Distribute(double dDistributedAmount, double dMinimumPayout)
 {
+    if (mapBalance.size() == 0)
+        throw runtime_error("The balance map is empty. There's not address to distribute dividends to.");
+
     BalanceMap mapRetainedBalance(mapBalance);
     bool bMustRedistribute = true;
 
@@ -47,9 +50,12 @@ void DividendDistributor::Distribute(double dDistributedAmount, double dMinimumP
             it++;
         }
     }
+    if (dTotalDistributed == 0)
+        throw runtime_error("No address received dividends.");
+
 }
 
-void DividendDistributor::GenerateOutputs(int nTransactions, vector<Object> &vTransactionOuts)
+void DividendDistributor::GenerateOutputs(int nTransactions, vector<Object> &vTransactionOuts) const
 {
     if (nTransactions <= 0)
         throw runtime_error("Invalid transaction count");

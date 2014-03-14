@@ -16,7 +16,7 @@ public:
     {
     }
 
-    const CBitcoinAddress &GetPeershareAddress() const
+    const CBitcoinAddress GetPeershareAddress() const
     {
         return addrPeershares;
     }
@@ -26,7 +26,7 @@ public:
         return dBalance;
     }
 
-    const CPeercoinAddress &GetPeercoinAddress() const
+    const CPeercoinAddress GetPeercoinAddress() const
     {
         return addrPeercoin;
     }
@@ -53,12 +53,17 @@ public:
     {
     }
 
-    void GenerateOutputs(int nTransactions, std::vector<json_spirit::Object> &vTransactionOuts);
     void Distribute(double dDistributedAmount, double dMinimumPayout);
+    void GenerateOutputs(int nTransactions, std::vector<json_spirit::Object> &vTransactionOuts) const;
 
     const DistributionVector& GetDistributions() const
     {
         return vDistribution;
+    }
+
+    int DistributionCount() const
+    {
+        return vDistribution.size();
     }
 
     const Distribution& GetDistribution(const CBitcoinAddress& addrPeershare) const

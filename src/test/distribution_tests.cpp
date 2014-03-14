@@ -35,6 +35,14 @@ BOOST_AUTO_TEST_CASE( test_simple_distribution )
     BOOST_CHECK_CLOSE(75.0, find_value(outs, CPeercoinAddress(2).ToString()).get_real(), PRECISION);
 }
 
+BOOST_AUTO_TEST_CASE( test_empty_distribution )
+{
+    BalanceMap mapBalance;
+
+    DividendDistributor distributor(mapBalance);
+    BOOST_CHECK_THROW(distributor.Distribute(100, 0.01), runtime_error);
+}
+
 BOOST_AUTO_TEST_CASE( test_off_decimal_distribution )
 {
     BalanceMap mapBalance;
@@ -82,7 +90,8 @@ BOOST_AUTO_TEST_CASE( test_nobody_has_enough_funds )
     mapBalance[CBitcoinAddress(2)] = 1;
 
     DividendDistributor distributor(mapBalance);
-    distributor.Distribute(20000, 10001);
+
+    BOOST_CHECK_THROW(distributor.Distribute(20000, 10001), runtime_error);
 
     BOOST_CHECK_EQUAL(0, distributor.GetDistributions().size());
 
