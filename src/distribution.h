@@ -81,3 +81,6 @@ public:
         return dTotalDistributed;
     }
 };
+
+DividendDistributor GenerateDistribution(const BalanceMap &mapBalance, double dAmount);
+json_spirit::Array SendDistribution(const DividendDistributor &distributor);
