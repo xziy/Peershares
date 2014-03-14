@@ -297,8 +297,9 @@ void BitcoinGUI::createMenuBar()
     file->addSeparator();
     file->addAction(quitAction);
 
-    QMenu *shares = appMenuBar->addMenu(tr("&Shares"));
+    QMenu *shares = appMenuBar->addMenu(tr("S&hares"));
     shares->addAction(exportPeercoinKeysAction);
+	shares->addAction(distributeDividendsAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     settings->addAction(encryptWalletAction);
@@ -306,9 +307,6 @@ void BitcoinGUI::createMenuBar()
     settings->addSeparator();
     settings->addAction(optionsAction);
 
-    QMenu *shares = appMenuBar->addMenu(tr("S&hares"));
-	shares->addAction(distributeDividendsAction);
-	
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     help->addAction(openRPCConsoleAction);
     help->addSeparator();
