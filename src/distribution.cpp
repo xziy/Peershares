@@ -7,7 +7,7 @@
 using namespace std;
 using namespace json_spirit;
 
-void DividendDistributor::Distribute(double nDistributedAmount, double nMinimumPayout)
+void DividendDistributor::Distribute(double dDistributedAmount, double dMinimumPayout)
 {
     BalanceMap mapRetainedBalance(mapBalance);
     bool bMustRedistribute = true;
@@ -16,33 +16,33 @@ void DividendDistributor::Distribute(double nDistributedAmount, double nMinimumP
     {
         bMustRedistribute = false;
 
-        nTotalDistributed = 0;
+        dTotalDistributed = 0;
         vDistribution.clear();
 
         BalanceMap::iterator it;
-        double nTotalBalance = 0;
+        double dTotalBalance = 0;
 
         it = mapRetainedBalance.begin();
         while (it != mapRetainedBalance.end())
         {
-            nTotalBalance += it->second;
+            dTotalBalance += it->second;
             it++;
         }
 
         it = mapRetainedBalance.begin();
         while (it != mapRetainedBalance.end())
         {
-            double nDistributed = it->second * nDistributedAmount / nTotalBalance;
-            if (nDistributed < nMinimumPayout)
+            double dDistributed = it->second * dDistributedAmount / dTotalBalance;
+            if (dDistributed < dMinimumPayout)
             {
                 mapRetainedBalance.erase(it++);
                 bMustRedistribute = true;
                 continue;
             }
-            Distribution distribution(it->first, it->second, nDistributed);
+            Distribution distribution(it->first, it->second, dDistributed);
             vDistribution.push_back(distribution);
 
-            nTotalDistributed += nDistributed;
+            dTotalDistributed += dDistributed;
 
             it++;
         }

@@ -5,14 +5,14 @@ class Distribution
 {
 protected:
     CBitcoinAddress addrPeershares;
-    double nBalance;
+    double dBalance;
 
     CBitcoinAddress addrPeercoin;
-    double nDividendAmount;
+    double dDividendAmount;
 
 public:
-    Distribution(CBitcoinAddress addrPeershares, double nBalance, double nDividendAmount)
-        : addrPeershares(addrPeershares), nBalance(nBalance), addrPeercoin(addrPeershares), nDividendAmount(nDividendAmount)
+    Distribution(CBitcoinAddress addrPeershares, double dBalance, double dDividendAmount)
+        : addrPeershares(addrPeershares), dBalance(dBalance), addrPeercoin(addrPeershares), dDividendAmount(dDividendAmount)
     {
     }
 
@@ -23,7 +23,7 @@ public:
 
     double GetBalance() const
     {
-        return nBalance;
+        return dBalance;
     }
 
     const CBitcoinAddress &GetPeercoinAddress() const
@@ -33,7 +33,7 @@ public:
 
     double GetDividendAmount() const
     {
-        return nDividendAmount;
+        return dDividendAmount;
     }
 };
 
@@ -44,17 +44,17 @@ class DividendDistributor
 {
 protected:
     const BalanceMap& mapBalance;
-    double nTotalDistributed;
+    double dTotalDistributed;
 
     DistributionVector vDistribution;
 
 public:
-    DividendDistributor(const BalanceMap& mapBalance) : mapBalance(mapBalance), nTotalDistributed(0)
+    DividendDistributor(const BalanceMap& mapBalance) : mapBalance(mapBalance), dTotalDistributed(0)
     {
     }
 
-    void Distribute(double nDistributedAmount, double nMinimumPayout);
     void GenerateOutputs(int nTransactions, std::vector<json_spirit::Object> &vTransactionOuts);
+    void Distribute(double dDistributedAmount, double dMinimumPayout);
 
     const DistributionVector& GetDistributions() const
     {
@@ -73,6 +73,6 @@ public:
 
     double TotalDistributed() const
     {
-        return nTotalDistributed;
+        return dTotalDistributed;
     }
 };
