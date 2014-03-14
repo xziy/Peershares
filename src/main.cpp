@@ -20,6 +20,8 @@ using namespace boost;
 //
 // Global state
 //
+static const uint256 hashGenesisBlockOfficial("0x000000d78e35e381ca738ceb966b9faf528f0970d994ce4eb4560b56cbe2f6c4");
+static const uint256 hashGenesisBlockTestNet ("0x000001df948ddf5a15f6eb0a5c57047600f6817ad2fcdf615a021700ae99db08");
 
 CCriticalSection cs_setpwalletRegistered;
 set<CWallet*> setpwalletRegistered;
@@ -32,8 +34,9 @@ unsigned int nTransactionsUpdated = 0;
 map<uint256, CBlockIndex*> mapBlockIndex;
 set<pair<COutPoint, unsigned int> > setStakeSeen;
 uint256 hashGenesisBlock = hashGenesisBlockOfficial;
-static CBigNum bnProofOfWorkLimit(~uint256(0) >> 32);
-static CBigNum bnInitialHashTarget(~uint256(0) >> 40);
+static CBigNum bnProofOfWorkLimit(~uint256(0) >> 20);
+static CBigNum bnInitialHashTarget(~uint256(0) >> 24);
+static CBigNum bnInitialProofOfStakeHashTarget(~uint256(0) >> 20);
 unsigned int nStakeMinAge = STAKE_MIN_AGE;
 int nCoinbaseMaturity = COINBASE_MATURITY_PPC;
 CBlockIndex* pindexGenesisBlock = NULL;
@@ -828,34 +831,7 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 
 int64 GetProofOfWorkReward(unsigned int nBits)
 {
-    CBigNum bnSubsidyLimit = MAX_MINT_PROOF_OF_WORK;
-    CBigNum bnTarget;
-    bnTarget.SetCompact(nBits);
-    CBigNum bnTargetLimit = bnProofOfWorkLimit;
-    bnTargetLimit.SetCompact(bnTargetLimit.GetCompact());
-
-    // ppcoin: subsidy is cut in half every 16x multiply of difficulty
-    // A reasonably continuous curve is used to avoid shock to market
-    // (nSubsidyLimit / nSubsidy) ** 4 == bnProofOfWorkLimit / bnTarget
-    CBigNum bnLowerBound = CENT;
-    CBigNum bnUpperBound = bnSubsidyLimit;
-    while (bnLowerBound + CENT <= bnUpperBound)
-    {
-        CBigNum bnMidValue = (bnLowerBound + bnUpperBound) / 2;
-        if (fDebug && GetBoolArg("-printcreation"))
-            printf("GetProofOfWorkReward() : lower=%"PRI64d" upper=%"PRI64d" mid=%"PRI64d"\n", bnLowerBound.getuint64(), bnUpperBound.getuint64(), bnMidValue.getuint64());
-        if (bnMidValue * bnMidValue * bnMidValue * bnMidValue * bnTargetLimit > bnSubsidyLimit * bnSubsidyLimit * bnSubsidyLimit * bnSubsidyLimit * bnTarget)
-            bnUpperBound = bnMidValue;
-        else
-            bnLowerBound = bnMidValue;
-    }
-
-    int64 nSubsidy = bnUpperBound.getuint64();
-    nSubsidy = (nSubsidy / CENT) * CENT;
-    if (fDebug && GetBoolArg("-printcreation"))
-        printf("GetProofOfWorkReward() : create=%s nBits=0x%08x nSubsidy=%"PRI64d"\n", FormatMoney(nSubsidy).c_str(), nBits, nSubsidy);
-
-    return min(nSubsidy, MAX_MINT_PROOF_OF_WORK);
+    return IPO_SHARES / PROOF_OF_WORK_BLOCKS; //this will only be used to create initial shares
 }
 
 // ppcoin: miner's coin stake is rewarded based on coin age spent (coin-days)
@@ -899,6 +875,14 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
     return pindex;
 }
 
+unsigned int static GetInitialTarget(bool fProofOfStake)
+{
+    if (fProofOfStake)
+        return bnInitialProofOfStakeHashTarget.GetCompact();
+    else
+        return bnInitialHashTarget.GetCompact();
+}
+
 unsigned int static GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
     if (pindexLast == NULL)
@@ -906,10 +890,10 @@ unsigned int static GetNextTargetRequired(const CBlockIndex* pindexLast, bool fP
 
     const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
     if (pindexPrev->pprev == NULL)
-        return bnInitialHashTarget.GetCompact(); // first block
+        return GetInitialTarget(fProofOfStake); // first block
     const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
     if (pindexPrevPrev->pprev == NULL)
-        return bnInitialHashTarget.GetCompact(); // second block
+        return GetInitialTarget(fProofOfStake); // second block
 
     int64 nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
 
@@ -2207,10 +2191,11 @@ bool LoadBlockIndex(bool fAllowNew)
     if (fTestNet)
     {
         hashGenesisBlock = hashGenesisBlockTestNet;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 28);
-        nStakeMinAge = 60 * 60 * 24; // test net min age is 1 day
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
+        nStakeMinAge = 300; // test net min age is 5 minutes
         nCoinbaseMaturity = 60;
-        bnInitialHashTarget = CBigNum(~uint256(0) >> 29);
+        bnInitialHashTarget = CBigNum(~uint256(0) >> 20);
+        bnInitialProofOfStakeHashTarget = CBigNum(~uint256(0) >> 16);
         nModifierInterval = 60 * 20; // test net modifier interval is 20 minutes
     }
 
@@ -2242,8 +2227,19 @@ bool LoadBlockIndex(bool fAllowNew)
 
         // Genesis block
         const char* pszTimestamp = "Matonis 07-AUG-2012 Parallel Currencies And The Roadmap To Monetary Freedom";
+        unsigned int nTimeGenesis=1394140389;
+        unsigned int nNonceGenesis=0;
+
+        if (fTestNet)
+        {
+            pszTimestamp="Mar 7, 2014 Dorian Satoshi Nakamoto denies creating Bitcoin in AP interview";
+            nTimeGenesis=1394250000;
+            nNonceGenesis=125399;
+        }
+
+
         CTransaction txNew;
-        txNew.nTime = 1345083810;
+        txNew.nTime = nTimeGenesis;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 486604799 << CBigNum(9999) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
@@ -2253,21 +2249,39 @@ bool LoadBlockIndex(bool fAllowNew)
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = 1345084287;
+        block.nTime    = nTimeGenesis;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
-        block.nNonce   = 2179302059u;
+        block.nNonce   = nNonceGenesis;
 
-        if (fTestNet)
+        CBigNum bnTarget;
+        bnTarget.SetCompact(block.nBits);
+
+        while (block.GetHash() > bnTarget.getuint256())
         {
-            block.nTime    = 1345090000;
-            block.nNonce   = 122894938;
+            if (fRequestShutdown)
+                return false;
+            if (block.nNonce % 1048576 == 0)
+                printf("n=%dM hash=%s\n", block.nNonce / 1048576,
+                       block.GetHash().ToString().c_str());
+            block.nNonce++;
         }
+     
+        printf("PPCoin Found Genesis Block:\n");
+        printf("genesis hash=%s\n", block.GetHash().ToString().c_str());
+        printf("merkle root=%s\n", block.hashMerkleRoot.ToString().c_str());
+        block.print();
+     
+        printf("PPCoin End Genesis Block\n");
 
         //// debug print
         printf("%s\n", block.GetHash().ToString().c_str());
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
-        assert(block.hashMerkleRoot == uint256("0x3c2d8f85fab4d17aac558cc648a1a58acff0de6deb890c29985690052c5993c2"));
+        if (!fTestNet)
+            assert(block.hashMerkleRoot == uint256("0xf88246c72a053cc2176dbf2ac884bcf79f021bba9c2c3c8fccc0735c37d9354c"));
+        else
+            assert(block.hashMerkleRoot == uint256("0x07c1ed6a29eb50960b476ad05cfd686021f88384b12b1ca351a374abd55fcd3c"));
+
         block.print();
         assert(block.GetHash() == hashGenesisBlock);
         assert(block.CheckBlock());
@@ -3569,10 +3583,19 @@ int64 nLastCoinStakeSearchInterval = 0;
 //   fProofOfStake: try (best effort) to make a proof-of-stake block
 CBlock* CreateNewBlock(CReserveKey& reservekey, CWallet* pwallet, bool fProofOfStake)
 {
+    //CReserveKey reservekey(pwallet);
+
     // Create new block
     auto_ptr<CBlock> pblock(new CBlock());
     if (!pblock.get())
         return NULL;
+	
+	//allow only PoW blocks at first, later only PoS blocks
+    if (fProofOfStake && nBestHeight <= PROOF_OF_WORK_BLOCKS)
+		return NULL;
+    if (!fProofOfStake && nBestHeight > PROOF_OF_WORK_BLOCKS)
+		return NULL;
+
 
     // Create coinbase tx
     CTransaction txNew;

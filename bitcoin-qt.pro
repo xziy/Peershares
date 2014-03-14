@@ -165,6 +165,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/ui_interface.h \
     src/qt/rpcconsole.h \
     src/kernel.h \
+    src/distribution.h \
     src/qt/distributedivdialog.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
@@ -222,6 +223,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/qtipcserver.cpp \
     src/qt/rpcconsole.cpp \
     src/kernel.cpp \
+    src/distribution.cpp \
     src/scanbalance.cpp \
     src/qt/distributedivdialog.cpp
 

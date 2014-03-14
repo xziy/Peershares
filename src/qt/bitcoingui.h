@@ -86,6 +86,7 @@ private:
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *exportAction;
+    QAction *exportPeercoinKeysAction;
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
@@ -172,6 +173,9 @@ private slots:
     void changePassphrase();
     /** Ask for pass phrase to unlock wallet temporarily */
     void unlockWallet();
+
+    /** Export the keys to peercoin */
+    void exportPeercoinKeys();
 
     /** Show window if hidden, unminimize when minimized */
     void showNormalIfMinimized();
