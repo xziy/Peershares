@@ -7,7 +7,7 @@ protected:
     CBitcoinAddress addrPeershares;
     double dBalance;
 
-    CBitcoinAddress addrPeercoin;
+    CPeercoinAddress addrPeercoin;
     double dDividendAmount;
 
 public:
@@ -26,7 +26,7 @@ public:
         return dBalance;
     }
 
-    const CBitcoinAddress &GetPeercoinAddress() const
+    const CPeercoinAddress &GetPeercoinAddress() const
     {
         return addrPeercoin;
     }

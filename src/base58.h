@@ -419,6 +419,11 @@ public:
         return nVersion == SCRIPT_ADDRESS;
     }
 
+    CPeercoinAddress(uint160 hash160In)
+    {
+        SetHash160(hash160In);
+    }
+
     CPeercoinAddress(const CBitcoinAddress &address)
     {
         if (address.IsScript())

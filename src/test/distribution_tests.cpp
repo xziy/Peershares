@@ -31,8 +31,8 @@ BOOST_AUTO_TEST_CASE( test_simple_distribution )
     BOOST_CHECK_EQUAL(1, vTransactionOuts.size());
 
     Object& outs = *vTransactionOuts.begin();
-    BOOST_CHECK_CLOSE(25.0, find_value(outs, CBitcoinAddress(1).ToString()).get_real(), PRECISION);
-    BOOST_CHECK_CLOSE(75.0, find_value(outs, CBitcoinAddress(2).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(25.0, find_value(outs, CPeercoinAddress(1).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(75.0, find_value(outs, CPeercoinAddress(2).ToString()).get_real(), PRECISION);
 }
 
 BOOST_AUTO_TEST_CASE( test_off_decimal_distribution )
@@ -110,9 +110,9 @@ BOOST_AUTO_TEST_CASE( test_split_transaction )
 
     iTransaction = vTransactionOuts.begin();
     outs = *iTransaction;
-    BOOST_CHECK_CLOSE(1.0, find_value(outs, CBitcoinAddress(1).ToString()).get_real(), PRECISION);
-    BOOST_CHECK_CLOSE(8.0, find_value(outs, CBitcoinAddress(2).ToString()).get_real(), PRECISION);
-    BOOST_CHECK_CLOSE(1.0, find_value(outs, CBitcoinAddress(3).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(1.0, find_value(outs, CPeercoinAddress(1).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(8.0, find_value(outs, CPeercoinAddress(2).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(1.0, find_value(outs, CPeercoinAddress(3).ToString()).get_real(), PRECISION);
     BOOST_CHECK_EQUAL(3, outs.size());
 
 
@@ -121,13 +121,13 @@ BOOST_AUTO_TEST_CASE( test_split_transaction )
 
     iTransaction = vTransactionOuts.begin();
     outs = *iTransaction;
-    BOOST_CHECK_CLOSE(1.0, find_value(outs, CBitcoinAddress(1).ToString()).get_real(), PRECISION);
-    BOOST_CHECK_CLOSE(1.0, find_value(outs, CBitcoinAddress(3).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(1.0, find_value(outs, CPeercoinAddress(1).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(1.0, find_value(outs, CPeercoinAddress(3).ToString()).get_real(), PRECISION);
     BOOST_CHECK_EQUAL(2, outs.size());
 
     iTransaction++;
     outs = *iTransaction;
-    BOOST_CHECK_CLOSE(8.0, find_value(outs, CBitcoinAddress(2).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(8.0, find_value(outs, CPeercoinAddress(2).ToString()).get_real(), PRECISION);
     BOOST_CHECK_EQUAL(1, outs.size());
 
     distributor.GenerateOutputs(3, vTransactionOuts);
@@ -135,17 +135,17 @@ BOOST_AUTO_TEST_CASE( test_split_transaction )
 
     iTransaction = vTransactionOuts.begin();
     outs = *iTransaction;
-    BOOST_CHECK_CLOSE(1.0, find_value(outs, CBitcoinAddress(1).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(1.0, find_value(outs, CPeercoinAddress(1).ToString()).get_real(), PRECISION);
     BOOST_CHECK_EQUAL(1, outs.size());
 
     iTransaction++;
     outs = *iTransaction;
-    BOOST_CHECK_CLOSE(8.0, find_value(outs, CBitcoinAddress(2).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(8.0, find_value(outs, CPeercoinAddress(2).ToString()).get_real(), PRECISION);
     BOOST_CHECK_EQUAL(1, outs.size());
 
     iTransaction++;
     outs = *iTransaction;
-    BOOST_CHECK_CLOSE(1.0, find_value(outs, CBitcoinAddress(3).ToString()).get_real(), PRECISION);
+    BOOST_CHECK_CLOSE(1.0, find_value(outs, CPeercoinAddress(3).ToString()).get_real(), PRECISION);
     BOOST_CHECK_EQUAL(1, outs.size());
 
     BOOST_CHECK_THROW(distributor.GenerateOutputs(4, vTransactionOuts), runtime_error);
