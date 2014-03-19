@@ -895,6 +895,6 @@ void BitcoinGUI::showNormalIfMinimized()
 
 void BitcoinGUI::distributeDividendsClicked()
 {
-    DistributeDivDialog dd;
+    DistributeDivDialog dd(this);
     dd.exec();
 }
