@@ -6,18 +6,17 @@
 #include <vector>
 using namespace std;
 
-//#include "base58.h"
-//#include "uint256.h"
-typedef long long int64;
-typedef string DummyCoinAddr;
-
 #include <QDialog>
 #include <QProgressDialog>
 #include <QThread>
 
+#include "base58.h"
+
 namespace Ui {
 class DistributeDivDialog;
 }
+
+typedef long long int64;
 
 
 class AddrBalanceScanner : public QThread
@@ -33,8 +32,8 @@ public:
 
     void Scan(unsigned int _cutoffTime);
 
-    //scanning result
-    map<DummyCoinAddr,int64> mapAB;
+    //scanning result, strictly speaking these should be volatile
+    map<CBitcoinAddress,int64> mapAB;
     std::string errorMsg;
     int nSecsSinceCutoff;
 
@@ -72,22 +71,15 @@ private slots:
 
 signals:
     void updateScanningProgress(int i,bool fAbort); //called from worker thread
-};
 
-
-struct DummyDistribution
-{
-    DummyCoinAddr addrPS;
-    int64 balPS;
-    DummyCoinAddr addrPC;
-    int64 dividend;
-    int fee;
-
-    static bool biggerBalance(DummyDistribution a,DummyDistribution b)
-    {
-        return a.balPS > b.balPS;
+public:
+    void updateProgress(int i,bool fAbort) //called from worker thread
+    { //We have this because signals are defined as protected, and don't want to change it.
+        emit updateScanningProgress(i,fAbort);
     }
 };
+
+struct DummyDistribution;
 
 class DistributeDivDialog : public QDialog
 {
