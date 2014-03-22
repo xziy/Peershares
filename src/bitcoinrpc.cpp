@@ -14,6 +14,7 @@
 #include "ui_interface.h"
 #include "bitcoinrpc.h"
 #include "distribution.h"
+#include "scanbalance.h"
 
 #undef printf
 #include <boost/asio.hpp>
@@ -1123,35 +1124,47 @@ Value sendmany(const Array& params, bool fHelp)
 
 Value distribute(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() < 2 || params.size() > 3)
         throw runtime_error(
-            "distribute <amount>\n"
-            "amount is the the number of peercoins to distribute, in double-precision floating point number");
+            "distribute <cutoff timestamp> <amount> [<proceed>]\n"
+            "cutoff is date and time at which the share balances should be considered. Format is unix time.\n"
+            "amount is the the number of peercoins to distribute, in double-precision floating point number.\n"
+            "If proceed is not true the peercoins are not sent and the details of the distribution are returned.");
+
+    unsigned int cutoffTime = params[0].get_int();
+    bool fProceed = false;
+    if (params.size() > 2)
+        fProceed = params[2].get_bool();
 
     BalanceMap mapBalance;
+    GetAddressBalances(cutoffTime, mapBalance);
 
-    // Temporary fake balance
-    mapBalance[CBitcoinAddress("mv2DsiCoYoQ8kuXUrVGvjuWxMa1XAMnCeR")] = 10;
-    mapBalance[CBitcoinAddress("mmECxg7KHhXnDeyRVEsmBWNeRkF1h3r84i")] = 20;
+    double dAmount = params[1].get_real();
+    DividendDistributor distributor = GenerateDistribution(mapBalance, dAmount);
 
-    double dAmount = params[0].get_real();
-    double dMinPayout = boost::lexical_cast<double>(GetArg("-distributionminpayout", "0.01"));
-
-    printf("Distributing %f peercoins to %d addresses with a minimum payout of %f\n", dAmount, mapBalance.size(), dMinPayout);
-
-    DividendDistributor distributor(mapBalance);
-    distributor.Distribute(dAmount, dMinPayout);
-
-    vector<Object> vOutputs;
-    distributor.GenerateOutputs(1, vOutputs);
-
-    printf("Generated the following distribution outputs:\n");
-    BOOST_FOREACH(Object &output, vOutputs)
+    Array results;
+    if (fProceed)
+        return SendDistribution(distributor);
+    else
     {
-        printf("%s\n", write_string(Value(output), true).c_str());
+        Object result;
+        result.push_back(Pair("address_count", mapBalance.size()));
+        result.push_back(Pair("minimum_payout", GetMinimumDividendPayout()));
+        result.push_back(Pair("distribution_address_count", distributor.GetDistributions().size()));
+        result.push_back(Pair("total_distributed", distributor.TotalDistributed()));
+        Array distributions;
+        BOOST_FOREACH(const Distribution &distribution, distributor.GetDistributions())
+        {
+            Object obj;
+            obj.push_back(Pair("peershares_address", distribution.GetPeershareAddress().ToString()));
+            obj.push_back(Pair("balance", (double)distribution.GetBalance() / COIN));
+            obj.push_back(Pair("peercoin_address", distribution.GetPeercoinAddress().ToString()));
+            obj.push_back(Pair("dividends", distribution.GetDividendAmount()));
+            distributions.push_back(obj);
+        }
+        result.push_back(Pair("distributions", distributions));
+        return result;
     }
-
-    return *vOutputs.begin();
 }
 
 Value addmultisigaddress(const Array& params, bool fHelp)
@@ -3251,7 +3264,9 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
         params[1] = v.get_obj();
     }
     if (strMethod == "sendmany"                && n > 2) ConvertTo<boost::int64_t>(params[2]);
-    if (strMethod == "distribute"              && n > 0) ConvertTo<double>(params[0]);
+    if (strMethod == "distribute"              && n > 0) ConvertTo<boost::int64_t>(params[0]);
+    if (strMethod == "distribute"              && n > 1) ConvertTo<double>(params[1]);
+    if (strMethod == "distribute"              && n > 2) ConvertTo<bool>(params[2]);
     if (strMethod == "reservebalance"          && n > 0) ConvertTo<bool>(params[0]);
     if (strMethod == "reservebalance"          && n > 1) ConvertTo<double>(params[1]);
     if (strMethod == "addmultisigaddress"      && n > 0) ConvertTo<boost::int64_t>(params[0]);
