@@ -81,9 +81,19 @@ void DividendDistributor::GenerateOutputs(int nTransactions, vector<Object> &vTr
     }
 }
 
+int DividendDistributor::GetTransactionCount(int nMaxDistributionPerTransaction) const
+{
+    return 1 + vDistribution.size() / nMaxDistributionPerTransaction;
+}
+
+double GetMinimumDividendPayout()
+{
+    return boost::lexical_cast<double>(GetArg("-distributionminpayout", "0.01"));
+}
+
 DividendDistributor GenerateDistribution(const BalanceMap &mapBalance, double dAmount)
 {
-    double dMinPayout = boost::lexical_cast<double>(GetArg("-distributionminpayout", "0.01"));
+    double dMinPayout = GetMinimumDividendPayout();
 
     printf("Distributing %f peercoins to %d addresses with a minimum payout of %f\n", dAmount, mapBalance.size(), dMinPayout);
 
@@ -99,21 +109,26 @@ DividendDistributor GenerateDistribution(const BalanceMap &mapBalance, double dA
     }
 }
 
+int GetMaximumDistributionPerTransaction()
+{
+    // As of 2014-02-22, Peercoin won't generate transactions larger than 100,000 bytes (MAX_BLOCK_SIZE_GEN/5)
+    // https://github.com/ppcoin/ppcoin/blob/master/src/wallet.cpp#L1181
+    // Each (non compressed) input takes 180 bytes, each output 34, and max 50 extra bytes
+    // http://bitcoin.stackexchange.com/a/3011/9199
+    // So 1000 outputs leaves room for about 350 inputs
+    return GetArg("-maxdistributionpertransaction", 1000);
+}
+
 Array SendDistribution(const DividendDistributor &distributor)
 {
     try {
         double dTotalDistributed = distributor.TotalDistributed();
         int nDistributionCount = distributor.DistributionCount();
 
-        // As of 2014-02-22, Peercoin won't generate transactions larger than 100,000 bytes (MAX_BLOCK_SIZE_GEN/5)
-        // https://github.com/ppcoin/ppcoin/blob/master/src/wallet.cpp#L1181
-        // Each (non compressed) input takes 180 bytes, each output 34, and max 50 extra bytes
-        // http://bitcoin.stackexchange.com/a/3011/9199
-        // So 1000 outputs leaves room for about 350 inputs
-        int nMaxDistributionPerTransaction = GetArg("-maxdistributionpertransaction", 1000);
+        int nMaxDistributionPerTransaction = GetMaximumDistributionPerTransaction();
         printf("Maximum output per transaction: %d\n", nMaxDistributionPerTransaction);
 
-        int nTransactions = 1 + nDistributionCount / nMaxDistributionPerTransaction;
+        int nTransactions = distributor.GetTransactionCount(nMaxDistributionPerTransaction);
 
         printf("Will send %f peercoins to %d addresses in %d transactions\n", dTotalDistributed, nDistributionCount, nTransactions);
 

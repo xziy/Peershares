@@ -1,112 +1,97 @@
-#include "bitcoingui.h"
 #include "distributedivdialog.h"
 #include "ui_distributedivdialog.h"
+#include "scanbalance.h"
 
 #include <QFileDialog>
-#include "QStandardItemModel"
+#include <QStandardItemModel>
 #include <QMessageBox>
 #include <ctime>
+#include "json/json_spirit_writer_template.h"
 
-struct DummyDistribution
+using namespace std;
+using namespace json_spirit;
+
+class QAddressItem : public QStandardItem
 {
-    CBitcoinAddress addrPS;
-    int64 balPS;
-    CBitcoinAddress addrPC;
-    int64 dividend;
-
-    static bool biggerBalance(DummyDistribution a,DummyDistribution b)
+public:
+    QAddressItem(const CBitcoinAddress &address)
     {
-        return a.balPS > b.balPS;
+        QVariant addressString(address.ToString().c_str());
+        setData(addressString, Qt::DisplayRole);
+        setData(addressString, Qt::UserRole);
     }
 };
 
-void UpdateProgressForScanBalance(void*pProgressContext,int nPercent,bool fAbort)
+class QBalanceItem : public QStandardItem
 {
-    ((AddrBalanceScanner*)pProgressContext)->updateProgress(nPercent,fAbort);
-}
-
-static int nscans=0;
-bool AddrBalanceScanner::GetAddressBalances()
-{
-    nscans++;
-
-    srand((int)time(0));
-
-    (string&)errorMsg="";
-    mapAB.clear();
-    //It's annoying to be stuck at 100% and waiting, so we add 5% for post-scan processing time.
-    //Being stuck at 95% feels better.
-    int total=105;
-
-    vector<unsigned char> v2integers;
-    v2integers.resize(2*sizeof(int));
-    int*p2ints=(int*)(&v2integers[0]);
-
-    for (int i=0;i<100;i++) {
-        QThread::msleep(5);
-        if (fUserCanceled) return false;
-
-        if (0==(nscans&3) && i>50)
-        { //error every 4th run
-            (string&)errorMsg="error description text here";
-            mapAB.clear();
-            emit updateScanningProgress(i*100/total,true);
-            fScanningError=true;
-            return false;
-        }
-        emit updateScanningProgress(i*100/total,false);
-
-        for (int j=0;j<100;j++) {
-            p2ints[0]=rand();
-            p2ints[1]=rand();
-            CBitcoinAddress ba(v2integers);
-            mapAB[ba]=(int64)rand();
-        }
+public:
+    QBalanceItem(int64 nBalance)
+    {
+        double dBalance = (double)nBalance / COIN;
+        QString sBalance;
+        sBalance.sprintf("%.4f", dBalance);
+        setData(QVariant(sBalance), Qt::DisplayRole);
+        setData(QVariant(dBalance), Qt::UserRole);
+        setData(QVariant(Qt::AlignRight | Qt::AlignVCenter), Qt::TextAlignmentRole);
     }
-    nSecsSinceCutoff=rand()*100;
-    QThread::msleep(100);
-    emit updateScanningProgress(100,false);
-    return true;
+};
+
+class QDividendItem : public QStandardItem
+{
+public:
+    QDividendItem(double dDividend)
+    {
+        QString sDividend;
+        sDividend.sprintf("%.2f", dDividend);
+        setData(QVariant(sDividend), Qt::DisplayRole);
+        setData(QVariant(dDividend), Qt::UserRole);
+        setData(QVariant(Qt::AlignRight | Qt::AlignVCenter), Qt::TextAlignmentRole);
+    }
+};
+
+void BalanceScannerThread::run()
+{
+    fSuccess = false;
+    sError = "Scanning thread did not terminate properly";
+    try
+    {
+        GetAddressBalances(cutoffTime, mapBalance);
+        emit updateScanningProgress(100, false);
+        fSuccess = true;
+        sError = "";
+    }
+    catch (const exception &error)
+    {
+        fSuccess = false;
+        sError = error.what();
+        emit updateScanningProgress(100, true);
+    }
 }
 
-void AddrBalanceScanner::run()
+void BalanceScannerThread::Scan(unsigned int cutoffTime)
 {
-
-    bool GetAddressBalances(void*pProgressContext, unsigned int cutoffTime, volatile bool*pfUserCanceled,
-                            int&nSecsSinceCutoff, map<CBitcoinAddress,int64>&ab,string&errMsg);
-
-    GetAddressBalances(this,cutoffTime,&fUserCanceled, nSecsSinceCutoff,mapAB,errorMsg);
-    //qDebug("thread starting");
-    //GetAddressBalances();
-    //qDebug("thread exiting");
-}
-
-void AddrBalanceScanner::Scan(unsigned int _cutoffTime)
-{
-    cutoffTime= _cutoffTime;
-    fUserCanceled=fScanningError=false;
+    this->cutoffTime = cutoffTime;
+    fUserCanceled = false;
 
     connect(this, SIGNAL(updateScanningProgress(int,bool)),
             this, SLOT(receiveScanningProgress(int,bool)), Qt::QueuedConnection);
-    connect(&prgDlg,SIGNAL(canceled()), this,SLOT(onProgressDialogCanceled()));
+    connect(&progressDialog,SIGNAL(canceled()), this,SLOT(onProgressDialogCanceled()));
 
-    mapAB.clear();
-    prgDlg.setWindowFlags(prgDlg.windowFlags()&(~Qt::WindowContextHelpButtonHint));
-    prgDlg.reset();
-    prgDlg.setWindowTitle("Please Wait");
-    prgDlg.setLabelText("Scanning local blockchain");
-    prgDlg.setMinimumDuration(0);
-    prgDlg.setModal(true);
-    prgDlg.setValue(0);
+    mapBalance.clear();
+    progressDialog.setWindowFlags(progressDialog.windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    progressDialog.reset();
+    progressDialog.setWindowTitle("Please Wait");
+    progressDialog.setLabelText("Scanning local blockchain");
+    progressDialog.setMinimumDuration(0);
+    progressDialog.setModal(true);
+    progressDialog.setValue(0);
     start(QThread::IdlePriority);
-    prgDlg.exec();
-    wait(); //make sure the worker thread finishes
+    progressDialog.exec();
 }
 
 
-//-----------------------------
-const char*DistributeDivDialog::columnHeadings[]={
-    "Peershares Addr", "Balance", "Peercoin Addr", "Dividend"
+const char* DistributeDivDialog::columnHeadings[] = {
+    "Peershares Address", "Shares", "Peercoin Address", "Dividend"
 };
 
 DistributeDivDialog::DistributeDivDialog(QWidget *parent) :
@@ -115,17 +100,17 @@ DistributeDivDialog::DistributeDivDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowFlags((Qt::WindowFlags)(~Qt::WindowContextHelpButtonHint)&windowFlags());
-
-    QStandardItemModel *pm = new QStandardItemModel(0,4,this);
+    QStandardItemModel *pm = new QStandardItemModel(0, 4, this);
 
     QStringList sl;
-    sl<<columnHeadings[0] << columnHeadings[1] << columnHeadings[2] << columnHeadings[3] ;
+    sl << columnHeadings[0] << columnHeadings[1] << columnHeadings[2] << columnHeadings[3];
     pm->setHorizontalHeaderLabels(sl);
     ui->tableView->setModel(pm);
     ui->tableView->resizeColumnsToContents();
     ui->tableView->verticalHeader()->setVisible(false);
-    ui->scanResultInfo->setText("");
+
+    QDate date = QDate::currentDate();
+    ui->recordDate->setDate(date);
 }
 
 DistributeDivDialog::~DistributeDivDialog()
@@ -133,157 +118,168 @@ DistributeDivDialog::~DistributeDivDialog()
     delete ui;
 }
 
-void DistributeDivDialog::resizeEvent(QResizeEvent *qre)
-{   Q_UNUSED(qre);
-    ui->tableView->resizeColumnsToContents();
-}
-
-static string formatPeercoinAmount(int64 a)
-{   char buf[64], *p=buf;
-    if (a<0)
-    {
-        a=-a;
-        *p='-'; p++;
-    }
-    sprintf(p,"%d.%06d",(int)(a/1000000),(int)(a%1000000));
-    return (string)buf;
-}
-
-void DistributeDivDialog::on_calcDividendsButton_clicked()
+unsigned int DistributeDivDialog::GetCutoffTime() const
 {
-    bool ok;
-    double d=ui->totalDividend->text().toDouble(&ok);
-    if (!(ok && d>0))
-    {
-        QMessageBox::critical(this,"Invalid Total Dividend","Please enter a valid total dividend value.");
-        ui->totalDividend->setFocus();
-        return;
-    }
+    tm t;
+    memset(&t, 0, sizeof(t));
 
-    int64 sum=0;
-    for (unsigned int i=0;i<dist.size();i++) sum+=dist[i].balPS;
-    if (0==sum)
-    {
-        QMessageBox::about(this,"You need to get list of account balances first.","Info");
-        return;
-    }
+    QDate date = ui->recordDate->date();
+    t.tm_year = date.year() - 1900;
+    t.tm_mon = date.month() - 1;
+    t.tm_mday = date.day();
 
-    double v=d/(double)sum;
-    //int64 paysum=0;
-    QStandardItemModel *pm = (QStandardItemModel*)ui->tableView->model();
-    QString s;
-    for (unsigned int i=0;i<dist.size();i++)
-    {
-        int64 pay=(int64)(dist[i].balPS *v*1e6+0.5);
-        dist[i].dividend=pay;
-        pm->setItem(i,3,new QStandardItem(formatPeercoinAmount(pay).c_str()));
-    }
-    ui->tableView->resizeColumnsToContents();
+    QTime time = ui->recordDate->time();
+    t.tm_hour = time.hour();
+    t.tm_min = time.minute();
+    t.tm_sec = time.second();
+
+    t.tm_isdst = -1;
+    time_t cutoffTime = mktime(&t);
+
+    return cutoffTime;
 }
 
-
-void DistributeDivDialog::updateTableDisplay()
+void DistributeDivDialog::ResizeColumns()
 {
-    QStandardItemModel *pm = (QStandardItemModel*)ui->tableView->model();
-    pm->removeRows(0,pm->rowCount());
-    pm->setRowCount(dist.size());
-    QString s;
-    for (unsigned int i=0;i<dist.size();i++) {
-        pm->setItem(i,0,new QStandardItem(dist[i].addrPS.ToString().c_str()));
-        pm->setItem(i,1,new QStandardItem(formatPeercoinAmount(dist[i].balPS).c_str()));
-        pm->setItem(i,2,new QStandardItem(dist[i].addrPC.ToString().c_str()));
-    }
+    ui->tableView->setVisible(false);
     ui->tableView->resizeColumnsToContents();
-
-    s.sprintf("Best block since end of record date: %.2f days",(float)nSecsSinceCutoff/(24*60*60));
-    ui->scanResultInfo->setText((s));
+    ui->tableView->setVisible(true);
 }
 
 void DistributeDivDialog::on_getShareholdsListButton_clicked()
 {
-    QDate qd=ui->recordDate->date();
-    tm t;
-    memset(&t,0,sizeof(t));
-    t.tm_mday= qd.day();
-    t.tm_mon= qd.month()-1;
-    t.tm_year=qd.year()-1900;
-    t.tm_isdst=-1;
-    time_t cutoffTime=mktime(&t);
+    BalanceScannerThread scanner(this);
+    scanner.Scan(GetCutoffTime());
+    scanner.wait();
 
-    cutoffTime+=24*60*60; //actual cutoff at beginning of next day
-
-    AddrBalanceScanner scanner(this);
-
-    scanner.Scan((unsigned int)cutoffTime);
-
-    if (scanner.fScanningError)
+    if (!scanner.fSuccess)
     {
-        QMessageBox::critical(this,"Scanning Error",scanner.errorMsg.c_str());
+        QMessageBox::critical(this,"Scanning Error",scanner.sError.c_str());
         return;
     }
 
     if (scanner.fUserCanceled)
+        return;
+
+    BalanceMap& mapBalance = scanner.mapBalance;
+    distributor.SetBalanceMap(mapBalance);
+
+    QStandardItemModel *model = (QStandardItemModel*)ui->tableView->model();
+
+    ui->tableView->setColumnHidden(2, true);
+    ui->tableView->setColumnHidden(3, true);
+
+    model->removeRows(0, model->rowCount());
+    model->setRowCount(mapBalance.size());
+
+    int i = 0;
+    for (BalanceMap::iterator it = mapBalance.begin(); it != mapBalance.end(); it++, i++)
     {
-        //QMessageBox::information(this,"Scanning","Scanning stopped by user.");
+        const CBitcoinAddress& address(it->first);
+        int64 nBalance = it->second;
+
+        model->setItem(i, 0, new QAddressItem(address));
+        model->setItem(i, 1, new QBalanceItem(nBalance));
+    }
+
+    model->setSortRole(Qt::UserRole);
+    ui->tableView->sortByColumn(1, Qt::DescendingOrder);
+
+    ResizeColumns();
+}
+
+void DistributeDivDialog::on_calcDividendsButton_clicked()
+{
+    bool fConversionSuccess;
+    double dAmount = ui->totalDividend->text().toDouble(&fConversionSuccess);
+    if (!fConversionSuccess || dAmount <= 0)
+    {
+        QMessageBox::critical(this, "Invalid Total Dividend", "Please enter a valid total dividend value.");
+        ui->totalDividend->setFocus();
         return;
     }
 
-    if (0==scanner.mapAB.size())
-    {   //From scanner's point of view, this is not an error.
-        //But we don't want to just clear the list view here.
-        QMessageBox::information(this,"Scanning Result","No address found by that record date.");
+    double dMinPayout = GetMinimumDividendPayout();
+
+    try
+    {
+        distributor.Distribute(dAmount, dMinPayout);
+    }
+    catch (const exception &error)
+    {
+        QMessageBox::critical(this, "Distribution error", error.what());
         return;
     }
 
-    //copy results
-    nSecsSinceCutoff=scanner.nSecsSinceCutoff;
+    const DistributionVector& vDistribution = distributor.GetDistributions();
 
-    dist.resize(scanner.mapAB.size());
-    map<CBitcoinAddress,int64>::const_iterator it=scanner.mapAB.begin();
-    for (unsigned int i=0;i<scanner.mapAB.size();i++,it++)
+    QStandardItemModel *model = (QStandardItemModel*)ui->tableView->model();
+
+    ui->tableView->setColumnHidden(2, false);
+    ui->tableView->setColumnHidden(3, false);
+
+    model->removeRows(0, model->rowCount());
+    model->setRowCount(vDistribution.size());
+
+    int i = 0;
+    for (DistributionVector::const_iterator it = vDistribution.begin(); it != vDistribution.end(); it++, i++)
     {
-        dist[i].addrPS=it->first;
-        dist[i].balPS=it->second;
-        dist[i].addrPC=it->first; //just copy Peershares addr for now
-        dist[i].dividend=0;
+        model->setItem(i, 0, new QAddressItem(it->GetPeershareAddress()));
+        model->setItem(i, 1, new QBalanceItem(it->GetBalance()));
+        model->setItem(i, 2, new QAddressItem(it->GetPeercoinAddress()));
+        model->setItem(i, 3, new QDividendItem(it->GetDividendAmount()));
     }
 
-    sort(dist.begin(),dist.end(),DummyDistribution::biggerBalance);
+    model->setSortRole(Qt::UserRole);
+    ui->tableView->sortByColumn(3, Qt::DescendingOrder);
 
-    updateTableDisplay();
+    ResizeColumns();
 }
 
 void DistributeDivDialog::on_exportButton_clicked()
 {
-    if (0==dist.size())
+    DistributionVector vDistribution = distributor.GetDistributions();
+
+    if (vDistribution.size() == 0)
     {
-        QMessageBox::about(this,"Nothing to export.","No shareholders list to export.");
+        QMessageBox::about(this, "Nothing to export", "No shareholders list to export.");
         return;
     }
 
     QString fn = QFileDialog::getSaveFileName(this, tr("Save As ..."), "",
                         "CSV files (*.csv);;All files (*.*)");
 
-    FILE*fp=fopen(fn.toStdString().c_str(),"wt");
-    if (!fp) {
-        QMessageBox::critical(this,"File save error","Failed to open file for writing:\n  "+fn);
+    FILE*fp = fopen(fn.toStdString().c_str(), "wt");
+    if (!fp)
+    {
+        QMessageBox::critical(this, "File save error", "Failed to open file for writing:\n  "+fn);
         return;
     }
-    fprintf(fp,"%s,%s,%s,%s\n",columnHeadings[0],columnHeadings[1],columnHeadings[2],columnHeadings[3]);
+    fprintf(fp,"%s,%s,%s,%s\n", columnHeadings[0], columnHeadings[1], columnHeadings[2], columnHeadings[3]);
 
-    for (unsigned int i=0;i<dist.size();i++)
+    for (unsigned int i=0; i < vDistribution.size(); i++)
     {
-        fprintf(fp,"%s,%s,%s,%s\n",
-                dist[i].addrPS.ToString().c_str(),formatPeercoinAmount(dist[i].balPS).c_str(),
-                dist[i].addrPC.ToString().c_str(),formatPeercoinAmount(dist[i].dividend).c_str()
-                );
+        fprintf(fp, "%s,%lld,%s,%f\n",
+                vDistribution[i].GetPeershareAddress().ToString().c_str(),
+                vDistribution[i].GetBalance(),
+                vDistribution[i].GetPeercoinAddress().ToString().c_str(),
+                vDistribution[i].GetDividendAmount());
     }
 
     fclose(fp);
-    QMessageBox::about(this,"OK","Successfully save to file: "+fn);
+    QMessageBox::about(this, "OK", "Successfully saved to file: " + fn);
 }
 
 void DistributeDivDialog::on_buttonBox_accepted()
 {
-    QMessageBox::about(this,"OK","Pay dividend.");
+    try
+    {
+        Array results = SendDistribution(distributor);
+        string sResults(write_string(Value(results), true));
+        QMessageBox::about(this, "Results", sResults.c_str());
+    }
+    catch (runtime_error &error)
+    {
+        QMessageBox::critical(this, "Error", error.what());
+    }
 }

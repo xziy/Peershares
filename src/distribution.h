@@ -1,3 +1,6 @@
+#ifndef DISTRIBUTION_H
+#define DISTRIBUTION_H
+
 #include "base58.h"
 #include "json/json_spirit_value.h"
 
@@ -5,14 +8,14 @@ class Distribution
 {
 protected:
     CBitcoinAddress addrPeershares;
-    double dBalance;
+    int64 nBalance;
 
     CPeercoinAddress addrPeercoin;
     double dDividendAmount;
 
 public:
-    Distribution(CBitcoinAddress addrPeershares, double dBalance, double dDividendAmount)
-        : addrPeershares(addrPeershares), dBalance(dBalance), addrPeercoin(addrPeershares), dDividendAmount(dDividendAmount)
+    Distribution(CBitcoinAddress addrPeershares, int64 nBalance, double dDividendAmount)
+        : addrPeershares(addrPeershares), nBalance(nBalance), addrPeercoin(addrPeershares), dDividendAmount(dDividendAmount)
     {
     }
 
@@ -21,9 +24,9 @@ public:
         return addrPeershares;
     }
 
-    double GetBalance() const
+    int64 GetBalance() const
     {
-        return dBalance;
+        return nBalance;
     }
 
     const CPeercoinAddress GetPeercoinAddress() const
@@ -43,18 +46,29 @@ typedef std::vector<Distribution> DistributionVector;
 class DividendDistributor
 {
 protected:
-    const BalanceMap& mapBalance;
+    BalanceMap mapBalance;
     double dTotalDistributed;
 
     DistributionVector vDistribution;
 
 public:
+    DividendDistributor() : mapBalance(), dTotalDistributed(0)
+    {
+    }
+
     DividendDistributor(const BalanceMap& mapBalance) : mapBalance(mapBalance), dTotalDistributed(0)
     {
     }
 
+    void SetBalanceMap(const BalanceMap &mapBalance)
+    {
+        this->mapBalance = mapBalance;
+    }
+
     void Distribute(double dDistributedAmount, double dMinimumPayout);
     void GenerateOutputs(int nTransactions, std::vector<json_spirit::Object> &vTransactionOuts) const;
+
+    int GetTransactionCount(int nMaxDistributionPerTransaction) const;
 
     const DistributionVector& GetDistributions() const
     {
@@ -84,3 +98,7 @@ public:
 
 DividendDistributor GenerateDistribution(const BalanceMap &mapBalance, double dAmount);
 json_spirit::Array SendDistribution(const DividendDistributor &distributor);
+double GetMinimumDividendPayout();
+int GetMaximumDistributionPerTransaction();
+
+#endif

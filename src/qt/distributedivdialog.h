@@ -4,82 +4,71 @@
 #include <string>
 #include <map>
 #include <vector>
-using namespace std;
 
 #include <QDialog>
 #include <QProgressDialog>
 #include <QThread>
 
-#include "base58.h"
+#include "util.h"
+#include "distribution.h"
 
-namespace Ui {
-class DistributeDivDialog;
+namespace Ui
+{
+    class DistributeDivDialog;
 }
 
-typedef long long int64;
 
-
-class AddrBalanceScanner : public QThread
+class BalanceScannerThread : public QThread
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
 
-    AddrBalanceScanner(QDialog*parent) : prgDlg(parent)
+    BalanceScannerThread(QDialog* parent) : parent(parent), progressDialog(parent)
     {
-        setStackSize(1024*1024);
+        setStackSize(1024 * 1024);
     }
 
-    void Scan(unsigned int _cutoffTime);
+    void Scan(unsigned int cutoffTime);
 
-    //scanning result, strictly speaking these should be volatile
-    map<CBitcoinAddress,int64> mapAB;
-    std::string errorMsg;
-    int nSecsSinceCutoff;
+    BalanceMap mapBalance;
+    bool fSuccess;
+    std::string sError;
 
     volatile bool fUserCanceled;
-    bool fScanningError;
 
 private:
+    QDialog* parent;
     unsigned int cutoffTime;
-    QProgressDialog prgDlg;
+    QProgressDialog progressDialog;
 
 
 protected:
     void run();
-    bool GetAddressBalances();
 
 private slots:
 
-    void receiveScanningProgress(int i,bool fAbort)
+    void receiveScanningProgress(int i, bool fAbort)
     {
         if (fAbort)
         {
-            fScanningError=true;
-            prgDlg.cancel();
+            progressDialog.cancel();
             return;
         }
-        if (prgDlg.wasCanceled()) return;
-        if (!prgDlg.isVisible()) return;
-        prgDlg.setValue(i);
+        if (progressDialog.wasCanceled()) return;
+        if (!progressDialog.isVisible()) return;
+        progressDialog.setValue(i);
     }
 
     void onProgressDialogCanceled()
     {
-        fUserCanceled=true;
+        fUserCanceled = true;
     }
 
 signals:
-    void updateScanningProgress(int i,bool fAbort); //called from worker thread
-
-public:
-    void updateProgress(int i,bool fAbort) //called from worker thread
-    { //We have this because signals are defined as protected, and don't want to change it.
-        emit updateScanningProgress(i,fAbort);
-    }
+    void updateScanningProgress(int i, bool fAbort);
 };
 
-struct DummyDistribution;
 
 class DistributeDivDialog : public QDialog
 {
@@ -89,20 +78,18 @@ public:
     explicit DistributeDivDialog(QWidget *parent = 0);
     ~DistributeDivDialog();
 
+    unsigned int GetCutoffTime() const;
+    void ResizeColumns();
+
 private:
 
-    static const char*columnHeadings[];
+    static const char* columnHeadings[];
 
-    //scanning result
-    int nSecsSinceCutoff;
-    vector <DummyDistribution> dist;
-    void updateTableDisplay();
+    DividendDistributor distributor;
 
 private:
     Ui::DistributeDivDialog *ui;
 
-protected:
-    void resizeEvent(QResizeEvent *qre);
 private slots:
     void on_getShareholdsListButton_clicked();
     void on_calcDividendsButton_clicked();
