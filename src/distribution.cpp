@@ -63,11 +63,13 @@ void DividendDistributor::GenerateOutputs(int nTransactions, vector<Object> &vTr
     if (nTransactions <= 0)
         throw runtime_error("Invalid transaction count");
 
-    vTransactionOuts.assign(nTransactions, Object());
+    if (vDistribution.size() == 0)
+        throw runtime_error("No address to distribute to");
 
     if (nTransactions > vDistribution.size())
         throw runtime_error("Output split in too many transactions");
 
+    vTransactionOuts.assign(nTransactions, Object());
     int nTransactionIndex = 0;
 
     BOOST_FOREACH(const Distribution &distribution, vDistribution)
