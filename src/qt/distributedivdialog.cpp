@@ -270,13 +270,34 @@ void DistributeDivDialog::on_exportButton_clicked()
     QMessageBox::about(this, "OK", "Successfully saved to file: " + fn);
 }
 
-void DistributeDivDialog::on_buttonBox_accepted()
+bool DistributeDivDialog::ConfirmDistribution()
 {
+    QMessageBox::StandardButton reply;
+    QString sQuestion = QString("%1 peercoins will be sent to %2 addresses in %3 transaction(s). Are you sure?").arg(
+            QString::number(distributor.TotalDistributed()),
+            QString::number(distributor.GetDistributions().size()),
+            QString::number(GetTransactionCount()));
+    reply = QMessageBox::question(this, "Distribution confirmation", sQuestion, QMessageBox::Yes | QMessageBox::No);
+    return reply == QMessageBox::Yes;
+}
+
+int DistributeDivDialog::GetTransactionCount() const
+{
+    int nMaxDistributionPerTransaction = GetMaximumDistributionPerTransaction();
+    return distributor.GetTransactionCount(nMaxDistributionPerTransaction);
+}
+
+void DistributeDivDialog::accept()
+{
+    if (!ConfirmDistribution())
+        return;
+
     try
     {
         Array results = SendDistribution(distributor);
         string sResults(write_string(Value(results), true));
         QMessageBox::about(this, "Results", sResults.c_str());
+        QDialog::accept();
     }
     catch (runtime_error &error)
     {

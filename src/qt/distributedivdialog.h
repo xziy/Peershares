@@ -80,6 +80,8 @@ public:
 
     unsigned int GetCutoffTime() const;
     void ResizeColumns();
+    bool ConfirmDistribution();
+    int GetTransactionCount() const;
 
 private:
 
@@ -95,8 +97,7 @@ private slots:
     void on_calcDividendsButton_clicked();
 
     void on_exportButton_clicked();
-
-    void on_buttonBox_accepted();
+    void accept();
 };
 
 #endif // DISTRIBUTEDIVDIALOG_H
