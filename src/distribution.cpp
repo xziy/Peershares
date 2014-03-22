@@ -170,3 +170,12 @@ Array SendDistribution(const DividendDistributor &distributor)
         throw;
     }
 }
+
+double GetDistributionBalance()
+{
+    string sAccount = GetArg("-distributionaccount", "");
+
+    Array params;
+    params.push_back(sAccount);
+    return boost::lexical_cast<double>(Value(CallPeercoinRPC("getbalance", params)).get_str());
+}

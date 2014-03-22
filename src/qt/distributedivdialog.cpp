@@ -273,11 +273,22 @@ void DistributeDivDialog::on_exportButton_clicked()
 bool DistributeDivDialog::ConfirmDistribution()
 {
     QMessageBox::StandardButton reply;
-    QString sQuestion = QString("%1 peercoins will be sent to %2 addresses in %3 transaction(s). Are you sure?").arg(
+    double dBalance;
+    try
+    {
+        dBalance = GetDistributionBalance();
+    }
+    catch (const exception &error)
+    {
+        QMessageBox::critical(this, "Error", QString("Unable to get Peercoin balance: %1").arg(error.what()));
+        return false;
+    }
+    QString sQuestion = QString("%1 peercoins will be sent to %2 addresses in %3 transaction(s).\nYour current peercoin balance is %4.\n\nAre you sure?").arg(
             QString::number(distributor.TotalDistributed()),
             QString::number(distributor.GetDistributions().size()),
-            QString::number(GetTransactionCount()));
-    reply = QMessageBox::question(this, "Distribution confirmation", sQuestion, QMessageBox::Yes | QMessageBox::No);
+            QString::number(GetTransactionCount()),
+            QString::number(dBalance));
+    reply = QMessageBox::warning(this, "Distribution confirmation", sQuestion, QMessageBox::Yes | QMessageBox::No);
     return reply == QMessageBox::Yes;
 }
 

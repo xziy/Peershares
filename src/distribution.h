@@ -100,5 +100,6 @@ DividendDistributor GenerateDistribution(const BalanceMap &mapBalance, double dA
 json_spirit::Array SendDistribution(const DividendDistributor &distributor);
 double GetMinimumDividendPayout();
 int GetMaximumDistributionPerTransaction();
+double GetDistributionBalance();
 
 #endif
