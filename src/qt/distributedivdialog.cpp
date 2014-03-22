@@ -2,6 +2,7 @@
 #include "ui_distributedivdialog.h"
 #include "scanbalance.h"
 
+#include <boost/foreach.hpp>
 #include <QFileDialog>
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -305,9 +306,12 @@ void DistributeDivDialog::accept()
 
     try
     {
-        Array results = SendDistribution(distributor);
-        string sResults(write_string(Value(results), true));
-        QMessageBox::about(this, "Results", sResults.c_str());
+        Array transactionIds = SendDistribution(distributor);
+        QString message("Distribution succeeded. Transaction IDs:\n");
+        BOOST_FOREACH(const Value transactionId, transactionIds)
+            message += QString("%1\n").arg(transactionId.get_str().c_str());
+
+        QMessageBox::about(this, "Distribution result", message);
         QDialog::accept();
     }
     catch (runtime_error &error)
