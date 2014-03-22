@@ -95,39 +95,3 @@ void GetAddressBalances(unsigned int cutoffTime, BalanceMap& mapBalance)
         nBlks++;
     }
 }
-
-
-void CmdLine_GetAddrBalances()
-{
-    fprintf(stdout, "******************** gettting balances of all addresss\n");
-    string ymd = GetArg("-addrbalance", "");
-    fprintf(stdout, "specified local cutoff date: %s\n", ymd.c_str());
-    if (ymd.length() == 0) return;
-
-    int i = atoi(ymd.c_str());
-    tm t;
-    memset(&t, 0, sizeof(t));
-    t.tm_mday = i % 100;
-    i /= 100;
-    t.tm_mon = (i % 100) -1;
-    i /= 100;
-    t.tm_year = i-1900;
-    t.tm_isdst = -1;
-    time_t cutoffTime = mktime(&t);
-    cutoffTime += 24 * 60 * 60; //actual cutoff at beginning of next day
-
-    BalanceMap mapBalance;
-    try
-    {
-        GetAddressBalances((unsigned int)cutoffTime, mapBalance);
-        fprintf(stdout, "GetAddressBalances() returned OK\n");
-    }
-    catch (const std::exception &error)
-    {
-        fprintf(stdout, "GetAddressBalances() returned error msg: %s\n", error.what());
-    }
-
-    fprintf(stdout, "cutoff day inclusive: y=%d m=%d d=%d\n", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday);
-    fprintf(stdout, "actual cutoff epoch=%u, UTC time: %s\n",
-            (unsigned int)cutoffTime, asctime(gmtime(&cutoffTime)));
-}
