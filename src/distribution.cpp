@@ -126,6 +126,10 @@ Array SendDistribution(const DividendDistributor &distributor)
     try {
         double dTotalDistributed = distributor.TotalDistributed();
         int nDistributionCount = distributor.DistributionCount();
+        double dBalance = GetDistributionBalance();
+
+        if (dTotalDistributed > dBalance)
+            throw runtime_error("Not enough peercoins available in distribution account");
 
         int nMaxDistributionPerTransaction = GetMaximumDistributionPerTransaction();
         printf("Maximum output per transaction: %d\n", nMaxDistributionPerTransaction);
