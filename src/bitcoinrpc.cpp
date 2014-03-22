@@ -1131,27 +1131,17 @@ Value distribute(const Array& params, bool fHelp)
     BalanceMap mapBalance;
 
     // Temporary fake balance
-    mapBalance[CBitcoinAddress("mv2DsiCoYoQ8kuXUrVGvjuWxMa1XAMnCeR")] = 10;
-    mapBalance[CBitcoinAddress("mmECxg7KHhXnDeyRVEsmBWNeRkF1h3r84i")] = 20;
-
-    double dAmount = params[0].get_real();
-    double dMinPayout = boost::lexical_cast<double>(GetArg("-distributionminpayout", "0.01"));
-
-    printf("Distributing %f peercoins to %d addresses with a minimum payout of %f\n", dAmount, mapBalance.size(), dMinPayout);
-
-    DividendDistributor distributor(mapBalance);
-    distributor.Distribute(dAmount, dMinPayout);
-
-    vector<Object> vOutputs;
-    distributor.GenerateOutputs(1, vOutputs);
-
-    printf("Generated the following distribution outputs:\n");
-    BOOST_FOREACH(Object &output, vOutputs)
+    for (int i = 0; i < 10000; i++)
     {
-        printf("%s\n", write_string(Value(output), true).c_str());
+        CBitcoinAddress address(i);
+        mapBalance[address] = 10;
     }
 
-    return *vOutputs.begin();
+    double dAmount = params[0].get_real();
+    DividendDistributor distributor = GenerateDistribution(mapBalance, dAmount);
+
+    Array results = SendDistribution(distributor);
+    return results;
 }
 
 Value addmultisigaddress(const Array& params, bool fHelp)
