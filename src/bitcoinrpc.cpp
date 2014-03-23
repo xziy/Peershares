@@ -1148,9 +1148,9 @@ Value distribute(const Array& params, bool fHelp)
     else
     {
         Object result;
-        result.push_back(Pair("address_count", mapBalance.size()));
+        result.push_back(Pair("address_count", (int)mapBalance.size()));
         result.push_back(Pair("minimum_payout", GetMinimumDividendPayout()));
-        result.push_back(Pair("distribution_address_count", distributor.GetDistributions().size()));
+        result.push_back(Pair("distribution_address_count", (int)distributor.GetDistributions().size()));
         result.push_back(Pair("total_distributed", distributor.TotalDistributed()));
         Array distributions;
         BOOST_FOREACH(const Distribution &distribution, distributor.GetDistributions())
