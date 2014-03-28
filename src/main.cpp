@@ -1910,6 +1910,18 @@ bool CBlock::AcceptBlock()
     CBlockIndex* pindexPrev = (*mi).second;
     int nHeight = pindexPrev->nHeight+1;
 
+    // Peershares: check switch from proof of work to proof of stake
+    if (nHeight <= PROOF_OF_WORK_BLOCKS)
+    {
+        if (IsProofOfStake())
+            return DoS(100, error("AcceptBlock() : PoS before switch"));
+    }
+    else
+    {
+        if (IsProofOfWork())
+            return DoS(100, error("AcceptBlock() : PoW after switch"));
+    }
+
     // Check proof-of-work or proof-of-stake
     if (nBits != GetNextTargetRequired(pindexPrev, IsProofOfStake()))
         return DoS(100, error("AcceptBlock() : incorrect proof-of-work/proof-of-stake"));
