@@ -301,29 +301,22 @@ bool CTransaction::IsStandard() const
         if (!txin.scriptSig.IsPushOnly())
             return false;
     }
-
+    
     unsigned int nDataOut = 0;
     txnouttype whichType;
-    BOOST_FOREACH(const CTxOut& txout, tx.vout) {
-        if (!::IsStandard(txout.scriptPubKey)) {
-        if (!::IsStandard(txout.scriptPubKey, whichType)) {
-            reason = "scriptpubkey";
+    BOOST_FOREACH(const CTxOut& txout, vout)
+        if (!::IsStandard(txout.scriptPubKey, whichType)){
             return false;
-          }
-        if (txout.IsDust(CTransaction::nMinRelayTxFee)) {
-        if (whichType == TX_NULL_DATA)
-            nDataOut++;
-        else if (txout.IsDust(CTransaction::nMinRelayTxFee)) {
-              reason = "dust";
-              return false;
-          }
-      }
-  
-    // only one OP_RETURN txout is permitted
-    if (nDataOut > 1) {
-        reason = "data-limit-exceeded";
-        return false;
-    }
+		}
+		if (whichType == TX_NULL_DATA)
+			nDataOut++;
+		
+		
+		if (nDataOut > 1) {
+			return false;
+		}
+            
+            
     return true;
 }
 
