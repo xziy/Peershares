@@ -84,11 +84,13 @@ private:
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *exportAction;
+    QAction *exportPeercoinKeysAction;
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
+    QAction *distributeDividendsAction;
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
@@ -149,6 +151,8 @@ private slots:
     void optionsClicked();
     /** Show about dialog */
     void aboutClicked();
+    /** Show distribute dividends dialog */
+    void distributeDividendsClicked();
 #ifndef Q_WS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -166,6 +170,9 @@ private slots:
     void changePassphrase();
     /** Ask for pass phrase to unlock wallet temporarily */
     void unlockWallet();
+
+    /** Export the keys to peercoin */
+    void exportPeercoinKeys();
 
     /** Show window if hidden, unminimize when minimized */
     void showNormalIfMinimized();

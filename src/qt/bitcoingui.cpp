@@ -27,6 +27,7 @@
 #include "guiutil.h"
 #include "rpcconsole.h"
 #include "wallet.h"
+#include "distributedivdialog.h"
 
 #ifdef Q_WS_MAC
 #include "macdockiconhandler.h"
@@ -63,6 +64,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     QMainWindow(parent),
     clientModel(0),
     walletModel(0),
+    exportPeercoinKeysAction(0),
     encryptWalletAction(0),
     changePassphraseAction(0),
     aboutQtAction(0),
@@ -255,6 +257,10 @@ void BitcoinGUI::createActions()
     changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
     openRPCConsoleAction = new QAction(tr("&Debug window"), this);
     openRPCConsoleAction->setToolTip(tr("Open debugging and diagnostic console"));
+    exportPeercoinKeysAction = new QAction(QIcon(":/icons/export"), tr("&Export Peercoin keys"), this);
+    exportPeercoinKeysAction->setToolTip(tr("Export the Peercoin keys associated with the Peershares addresses to Peercoin via RPC"));
+    distributeDividendsAction = new QAction(tr("&Distribute dividends"), this);
+    distributeDividendsAction->setToolTip(tr("Distribute dividends to share holders"));
 
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
@@ -264,6 +270,8 @@ void BitcoinGUI::createActions()
     connect(encryptWalletAction, SIGNAL(triggered(bool)), this, SLOT(encryptWallet(bool)));
     connect(backupWalletAction, SIGNAL(triggered()), this, SLOT(backupWallet()));
     connect(changePassphraseAction, SIGNAL(triggered()), this, SLOT(changePassphrase()));
+    connect(exportPeercoinKeysAction, SIGNAL(triggered()), this, SLOT(exportPeercoinKeys()));
+    connect(distributeDividendsAction, SIGNAL(triggered()), this, SLOT(distributeDividendsClicked()));
 }
 
 void BitcoinGUI::createMenuBar()
@@ -285,6 +293,10 @@ void BitcoinGUI::createMenuBar()
 #endif
     file->addSeparator();
     file->addAction(quitAction);
+
+    QMenu *shares = appMenuBar->addMenu(tr("S&hares"));
+    shares->addAction(exportPeercoinKeysAction);
+	shares->addAction(distributeDividendsAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
     settings->addAction(encryptWalletAction);
@@ -848,10 +860,35 @@ void BitcoinGUI::unlockWallet()
     }
 }
 
+void BitcoinGUI::exportPeercoinKeys()
+{
+    try {
+        int iExportedCount, iErrorCount;
+        walletModel->ExportPeercoinKeys(iExportedCount, iErrorCount);
+        QMessageBox::information(this,
+                tr("Peercoin keys export"),
+                tr("%1 key(s) were exported to Peercoin.\n%2 key(s) were either already known or invalid.")
+                  .arg(iExportedCount)
+                  .arg(iErrorCount)
+                );
+    }
+    catch (std::runtime_error &e) {
+        QMessageBox::critical(this,
+                tr("Peercoin keys export"),
+                tr("Error: %1").arg(e.what()));
+    }
+}
+
 void BitcoinGUI::showNormalIfMinimized()
 {
     if(!isVisible()) // Show, if hidden
         show();
     if(isMinimized()) // Unminimize, if minimized
         showNormal();
+}
+
+void BitcoinGUI::distributeDividendsClicked()
+{
+    DistributeDivDialog dd(this);
+    dd.exec();
 }
