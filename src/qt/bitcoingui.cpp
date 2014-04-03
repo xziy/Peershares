@@ -1,9 +1,10 @@
 /*
- * Qt4 ppcoin GUI.
+ * Qt4 Peershares GUI.
  *
  * W.J. van der Laan 2011-2012
  * The Bitcoin Developers 2011-2012
- * The PPCoin Developers 2011-2013
+ * The Peercoin Developers 2011-2013
+ * The Peershares Developers 2013-2014
  */
 #include "bitcoingui.h"
 #include "transactiontablemodel.h"
@@ -73,9 +74,9 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     rpcConsole(0)
 {
     resize(850, 550);
-    setWindowTitle(tr("Peercoin (PPCoin) Wallet"));
+    setWindowTitle(tr("Peershares Portfolio"));
 #ifndef Q_WS_MAC
-    setWindowIcon(QIcon(":icons/ppcoin"));
+    setWindowIcon(QIcon(":icons/peershares"));
 #else
     setUnifiedTitleAndToolBarOnMac(true);
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
@@ -182,7 +183,7 @@ void BitcoinGUI::createActions()
     QActionGroup *tabGroup = new QActionGroup(this);
 
     overviewAction = new QAction(QIcon(":/icons/overview"), tr("&Overview"), this);
-    overviewAction->setToolTip(tr("Show general overview of wallet"));
+    overviewAction->setToolTip(tr("Show general overview of holdings"));
     overviewAction->setCheckable(true);
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
@@ -199,14 +200,14 @@ void BitcoinGUI::createActions()
     addressBookAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(addressBookAction);
 
-    receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive coins"), this);
+    receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive shares"), this);
     receiveCoinsAction->setToolTip(tr("Show the list of addresses for receiving payments"));
     receiveCoinsAction->setCheckable(true);
     receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(receiveCoinsAction);
 
-    sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send coins"), this);
-    sendCoinsAction->setToolTip(tr("Send coins to a ppcoin address"));
+    sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send shares"), this);
+    sendCoinsAction->setToolTip(tr("Send shares to a Peershares address"));
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(sendCoinsAction);
@@ -235,26 +236,26 @@ void BitcoinGUI::createActions()
     quitAction->setToolTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-    aboutAction = new QAction(QIcon(":/icons/ppcoin"), tr("&About %1").arg(qApp->applicationName()), this);
-    aboutAction->setToolTip(tr("Show information about PPCoin"));
+    aboutAction = new QAction(QIcon(":/icons/peershares"), tr("&About %1").arg(qApp->applicationName()), this);
+    aboutAction->setToolTip(tr("Show information about Peershares"));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutQtAction = new QAction(tr("About &Qt"), this);
     aboutQtAction->setToolTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
     optionsAction = new QAction(QIcon(":/icons/options"), tr("&Options..."), this);
-    optionsAction->setToolTip(tr("Modify configuration options for ppcoin"));
+    optionsAction->setToolTip(tr("Modify configuration options for Peershares"));
     optionsAction->setMenuRole(QAction::PreferencesRole);
-    toggleHideAction = new QAction(QIcon(":/icons/ppcoin"), tr("Show/Hide &PPCoin"), this);
-    toggleHideAction->setToolTip(tr("Show or hide the PPCoin window"));
+    toggleHideAction = new QAction(QIcon(":/icons/peershares"), tr("Show/Hide &Peershares"), this);
+    toggleHideAction->setToolTip(tr("Show or hide the Peershares window"));
     exportAction = new QAction(QIcon(":/icons/export"), tr("&Export..."), this);
     exportAction->setToolTip(tr("Export the data in the current tab to a file"));
-    encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet"), this);
-    encryptWalletAction->setToolTip(tr("Encrypt or decrypt wallet"));
+    encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Portfolio"), this);
+    encryptWalletAction->setToolTip(tr("Encrypt or decrypt portfolio"));
     encryptWalletAction->setCheckable(true);
     backupWalletAction = new QAction(QIcon(":/icons/filesave"), tr("&Backup Wallet"), this);
-    backupWalletAction->setToolTip(tr("Backup wallet to another location"));
+    backupWalletAction->setToolTip(tr("Backup portfolio to another location"));
     changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase"), this);
-    changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
+    changePassphraseAction->setToolTip(tr("Change the passphrase used for portfolio encryption"));
     openRPCConsoleAction = new QAction(tr("&Debug window"), this);
     openRPCConsoleAction->setToolTip(tr("Open debugging and diagnostic console"));
     exportPeercoinKeysAction = new QAction(QIcon(":/icons/export"), tr("&Export Peercoin keys"), this);
@@ -339,9 +340,9 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
             QString title_testnet = windowTitle() + QString(" ") + tr("[testnet]");
             setWindowTitle(title_testnet);
 #ifndef Q_WS_MAC
-            setWindowIcon(QIcon(":icons/ppcoin_testnet"));
+            setWindowIcon(QIcon(":icons/peershares_testnet"));
 #else
-            MacDockIconHandler::instance()->setIcon(QIcon(":icons/ppcoin_testnet"));
+            MacDockIconHandler::instance()->setIcon(QIcon(":icons/peershares_testnet"));
 #endif
             if(trayIcon)
             {
@@ -400,7 +401,7 @@ void BitcoinGUI::createTrayIcon()
     trayIcon = new QSystemTrayIcon(this);
     trayIconMenu = new QMenu(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setToolTip(tr("PPCoin client"));
+    trayIcon->setToolTip(tr("Peershares client"));
     trayIcon->setIcon(QIcon(":/icons/toolbar"));
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -427,7 +428,7 @@ void BitcoinGUI::createTrayIcon()
     trayIconMenu->addAction(quitAction);
 #endif
 
-    notificator = new Notificator(tr("ppcoin-qt"), trayIcon);
+    notificator = new Notificator(tr("Peershares-qt"), trayIcon);
 }
 
 #ifndef Q_WS_MAC
@@ -435,7 +436,7 @@ void BitcoinGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     if(reason == QSystemTrayIcon::Trigger)
     {
-        // Click on system tray icon triggers "show/hide bitcoin"
+        // Click on system tray icon triggers "show/hide Peershares"
         toggleHideAction->trigger();
     }
 }
@@ -491,7 +492,7 @@ void BitcoinGUI::setNumConnections(int count)
     default: icon = ":/icons/connect_4"; break;
     }
     labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to PPCoin network", "", count));
+    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to Peershares network", "", count));
 }
 
 void BitcoinGUI::setNumBlocks(int count)
@@ -832,10 +833,10 @@ void BitcoinGUI::encryptWallet(bool status)
 void BitcoinGUI::backupWallet()
 {
     QString saveDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
-    QString filename = QFileDialog::getSaveFileName(this, tr("Backup Wallet"), saveDir, tr("Wallet Data (*.dat)"));
+    QString filename = QFileDialog::getSaveFileName(this, tr("Backup Portfolio"), saveDir, tr("Portfolio Data (*.dat)"));
     if(!filename.isEmpty()) {
         if(!walletModel->backupWallet(filename)) {
-            QMessageBox::warning(this, tr("Backup Failed"), tr("There was an error trying to save the wallet data to the new location."));
+            QMessageBox::warning(this, tr("Backup Failed"), tr("There was an error trying to save the portfolio data to the new location."));
         }
     }
 }
