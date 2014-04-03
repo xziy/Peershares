@@ -403,8 +403,8 @@ Value gethashespersec(const Array& params, bool fHelp)
 }
 
 
-// Peershares: get network Gh/s estimate
-// Note: this is only useful during the initial proof-of-work 'IPO' phase of the network
+// peercoin: get network Gh/s estimate
+// peershares note: this is only useful during the initial proof-of-work 'IPO' phase of the network
 Value getnetworkghps(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
@@ -685,7 +685,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
         throw runtime_error(
             "sendtoaddress <peersharesaddress> <amount> [comment] [comment-to]\n"
             "<amount> is a real and is rounded to the nearest 0.000001\n"
-            "requires wallet passphrase to be set with walletpassphrase first");
+            "requires portfolio passphrase to be set with walletpassphrase first");
     if (!pwalletMain->IsCrypted() && (fHelp || params.size() < 2 || params.size() > 4))
         throw runtime_error(
             "sendtoaddress <peersharesaddress> <amount> [comment] [comment-to]\n"
@@ -708,7 +708,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
         wtx.mapValue["to"]      = params[3].get_str();
 
     if (pwalletMain->IsLocked())
-        throw JSONRPCError(-13, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+        throw JSONRPCError(-13, "Error: Please enter the portfolio passphrase with walletpassphrase first.");
 
     string strError = pwalletMain->SendMoneyToBitcoinAddress(address, nAmount, wtx);
     if (strError != "")
@@ -725,7 +725,7 @@ Value signmessage(const Array& params, bool fHelp)
             "Sign a message with the private key of an address");
 
     if (pwalletMain->IsLocked())
-        throw JSONRPCError(-13, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+        throw JSONRPCError(-13, "Error: Please enter the portfolio passphrase with walletpassphrase first.");
 
     string strAddress = params[0].get_str();
     string strMessage = params[1].get_str();
@@ -961,7 +961,7 @@ Value movecmd(const Array& params, bool fHelp)
     if (fHelp || params.size() < 3 || params.size() > 5)
         throw runtime_error(
             "move <fromaccount> <toaccount> <amount> [minconf=1] [comment]\n"
-            "Move from one account in your wallet to another.");
+            "Move from one account in your portfolio to another.");
 
     string strFrom = AccountFromValue(params[0]);
     string strTo = AccountFromValue(params[1]);
@@ -1010,7 +1010,7 @@ Value sendfrom(const Array& params, bool fHelp)
         throw runtime_error(
             "sendfrom <fromaccount> <topeersharesaddress> <amount> [minconf=1] [comment] [comment-to]\n"
             "<amount> is a real and is rounded to the nearest 0.000001\n"
-            "requires wallet passphrase to be set with walletpassphrase first");
+            "requires portfolio passphrase to be set with walletpassphrase first");
     if (!pwalletMain->IsCrypted() && (fHelp || params.size() < 3 || params.size() > 6))
         throw runtime_error(
             "sendfrom <fromaccount> <topeersharesaddress> <amount> [minconf=1] [comment] [comment-to]\n"
@@ -1035,7 +1035,7 @@ Value sendfrom(const Array& params, bool fHelp)
         wtx.mapValue["to"]      = params[5].get_str();
 
     if (pwalletMain->IsLocked())
-        throw JSONRPCError(-13, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+        throw JSONRPCError(-13, "Error: Please enter the portfolio passphrase with walletpassphrase first.");
 
     // Check funds
     int64 nBalance = GetAccountBalance(strAccount, nMinDepth);
@@ -1057,7 +1057,7 @@ Value sendmany(const Array& params, bool fHelp)
         throw runtime_error(
             "sendmany <fromaccount> {address:amount,...} [minconf=1] [comment]\n"
             "amounts are double-precision floating point numbers\n"
-            "requires wallet passphrase to be set with walletpassphrase first");
+            "requires portfolio passphrase to be set with walletpassphrase first");
     if (!pwalletMain->IsCrypted() && (fHelp || params.size() < 2 || params.size() > 4))
         throw runtime_error(
             "sendmany <fromaccount> {address:amount,...} [minconf=1] [comment]\n"
@@ -1099,9 +1099,9 @@ Value sendmany(const Array& params, bool fHelp)
     }
 
     if (pwalletMain->IsLocked())
-        throw JSONRPCError(-13, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+        throw JSONRPCError(-13, "Error: Please enter the portfolio passphrase with walletpassphrase first.");
     if (fWalletUnlockMintOnly)
-        throw JSONRPCError(-13, "Error: Wallet unlocked for block minting only.");
+        throw JSONRPCError(-13, "Error: portfolio unlocked for block minting only.");
 
     // Check funds
     int64 nBalance = GetAccountBalance(strAccount, nMinDepth);
@@ -1711,14 +1711,14 @@ Value keypoolrefill(const Array& params, bool fHelp)
     if (pwalletMain->IsCrypted() && (fHelp || params.size() > 0))
         throw runtime_error(
             "keypoolrefill\n"
-            "Fills the keypool, requires wallet passphrase to be set.");
+            "Fills the keypool, requires portfolio passphrase to be set.");
     if (!pwalletMain->IsCrypted() && (fHelp || params.size() > 0))
         throw runtime_error(
             "keypoolrefill\n"
             "Fills the keypool.");
 
     if (pwalletMain->IsLocked())
-        throw JSONRPCError(-13, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+        throw JSONRPCError(-13, "Error: Please enter the portfolio passphrase with walletpassphrase first.");
 
     pwalletMain->TopUpKeyPool();
 
@@ -1780,7 +1780,7 @@ Value walletpassphrase(const Array& params, bool fHelp)
     if (pwalletMain->IsCrypted() && (fHelp || params.size() < 2 || params.size() > 3))
         throw runtime_error(
             "walletpassphrase <passphrase> <timeout> [mintonly]\n"
-            "Stores the wallet decryption key in memory for <timeout> seconds.\n"
+            "Stores the portfolio decryption key in memory for <timeout> seconds.\n"
             "mintonly is optional true/false allowing only block minting.");
     if (fHelp)
         return true;
@@ -1788,7 +1788,7 @@ Value walletpassphrase(const Array& params, bool fHelp)
         throw JSONRPCError(-15, "Error: running with an unencrypted wallet, but walletpassphrase was called.");
 
     if (!pwalletMain->IsLocked())
-        throw JSONRPCError(-17, "Error: Wallet is already unlocked, use walletlock first if need to change unlock settings.");
+        throw JSONRPCError(-17, "Error: Portfolio is already unlocked, use walletlock first if need to change unlock settings.");
 
     // Note that the walletpassphrase is stored in params[0] which is not mlock()ed
     SecureString strWalletPass;
@@ -1800,18 +1800,18 @@ Value walletpassphrase(const Array& params, bool fHelp)
     if (strWalletPass.length() > 0)
     {
         if (!pwalletMain->Unlock(strWalletPass))
-            throw JSONRPCError(-14, "Error: The wallet passphrase entered was incorrect.");
+            throw JSONRPCError(-14, "Error: The portfolio passphrase entered was incorrect.");
     }
     else
         throw runtime_error(
             "walletpassphrase <passphrase> <timeout>\n"
-            "Stores the wallet decryption key in memory for <timeout> seconds.");
+            "Stores the portfolio decryption key in memory for <timeout> seconds.");
 
     CreateThread(ThreadTopUpKeyPool, NULL);
     int64* pnSleepTime = new int64(params[1].get_int64());
     CreateThread(ThreadCleanWalletPassphrase, pnSleepTime);
 
-    // Peershares: if user OS account compromised prevent trivial sendmoney commands
+    // peercoin: if user OS account compromised prevent trivial sendmoney commands
     if (params.size() > 2)
         fWalletUnlockMintOnly = params[2].get_bool();
     else
@@ -1826,7 +1826,7 @@ Value walletpassphrasechange(const Array& params, bool fHelp)
     if (pwalletMain->IsCrypted() && (fHelp || params.size() != 2))
         throw runtime_error(
             "walletpassphrasechange <oldpassphrase> <newpassphrase>\n"
-            "Changes the wallet passphrase from <oldpassphrase> to <newpassphrase>.");
+            "Changes the portfolio passphrase from <oldpassphrase> to <newpassphrase>.");
     if (fHelp)
         return true;
     if (!pwalletMain->IsCrypted())
@@ -1845,10 +1845,10 @@ Value walletpassphrasechange(const Array& params, bool fHelp)
     if (strOldWalletPass.length() < 1 || strNewWalletPass.length() < 1)
         throw runtime_error(
             "walletpassphrasechange <oldpassphrase> <newpassphrase>\n"
-            "Changes the wallet passphrase from <oldpassphrase> to <newpassphrase>.");
+            "Changes the portfolio passphrase from <oldpassphrase> to <newpassphrase>.");
 
     if (!pwalletMain->ChangeWalletPassphrase(strOldWalletPass, strNewWalletPass))
-        throw JSONRPCError(-14, "Error: The wallet passphrase entered was incorrect.");
+        throw JSONRPCError(-14, "Error: The portfolio passphrase entered was incorrect.");
 
     return Value::null;
 }
@@ -1859,13 +1859,13 @@ Value walletlock(const Array& params, bool fHelp)
     if (pwalletMain->IsCrypted() && (fHelp || params.size() != 0))
         throw runtime_error(
             "walletlock\n"
-            "Removes the wallet encryption key from memory, locking the wallet.\n"
+            "Removes the portfolio encryption key from memory, locking the portfolio.\n"
             "After calling this method, you will need to call walletpassphrase again\n"
-            "before being able to call any methods which require the wallet to be unlocked.");
+            "before being able to call any methods which require the portfolio to be unlocked.");
     if (fHelp)
         return true;
     if (!pwalletMain->IsCrypted())
-        throw JSONRPCError(-15, "Error: running with an unencrypted wallet, but walletlock was called.");
+        throw JSONRPCError(-15, "Error: running with an unencrypted portfolio, but walletlock was called.");
 
     {
         LOCK(cs_nWalletUnlockTime);
@@ -1882,11 +1882,11 @@ Value encryptwallet(const Array& params, bool fHelp)
     if (!pwalletMain->IsCrypted() && (fHelp || params.size() != 1))
         throw runtime_error(
             "encryptwallet <passphrase>\n"
-            "Encrypts the wallet with <passphrase>.");
+            "Encrypts the portfolio with <passphrase>.");
     if (fHelp)
         return true;
     if (pwalletMain->IsCrypted())
-        throw JSONRPCError(-15, "Error: running with an encrypted wallet, but encryptwallet was called.");
+        throw JSONRPCError(-15, "Error: running with an encrypted portfolio, but encryptwallet was called.");
 
     // TODO: get rid of this .c_str() by implementing SecureString::operator=(std::string)
     // Alternately, find a way to make params[0] mlock()'d to begin with.
@@ -1897,16 +1897,16 @@ Value encryptwallet(const Array& params, bool fHelp)
     if (strWalletPass.length() < 1)
         throw runtime_error(
             "encryptwallet <passphrase>\n"
-            "Encrypts the wallet with <passphrase>.");
+            "Encrypts the portfolio with <passphrase>.");
 
     if (!pwalletMain->EncryptWallet(strWalletPass))
-        throw JSONRPCError(-16, "Error: Failed to encrypt the wallet.");
+        throw JSONRPCError(-16, "Error: Failed to encrypt the portfolio.");
 
     // BDB seems to have a bad habit of writing old data into
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys.  So:
     StartShutdown();
-    return "wallet encrypted; Peershares server stopping, restart to run with encrypted wallet";
+    return "Portfolio encrypted; Peershares server stopping. Please restart server to run with encrypted portfolio";
 }
 
 
@@ -2065,7 +2065,7 @@ Value getwork(const Array& params, bool fHelp)
 
         assert(pwalletMain != NULL);
         if (!pblock->SignBlock(*pwalletMain))
-            throw JSONRPCError(-100, "Unable to sign block, wallet locked?");
+            throw JSONRPCError(-100, "Unable to sign block, portfolio locked?");
 
         return CheckWork(pblock, *pwalletMain, *pMiningKey);
     }
@@ -2244,9 +2244,9 @@ Value submitblock(const Array& params, bool fHelp)
         throw JSONRPCError(-22, "Block decode failed");
     }
 
-    // Peershares: sign block
+    // peercoin: sign block
     if (!block.SignBlock(*pwalletMain))
-        throw JSONRPCError(-100, "Unable to sign block, wallet locked?");
+        throw JSONRPCError(-100, "Unable to sign block, portfolio locked?");
 
     bool fAccepted = CheckWork(&block, *pwalletMain, *pMiningKey);
     if (!fAccepted)
@@ -2296,7 +2296,7 @@ Value getblock(const Array& params, bool fHelp)
 }
 
 
-// Peershares: get information of sync-checkpoint
+// peercoin: get information of sync-checkpoint
 Value getcheckpoint(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
@@ -2318,7 +2318,7 @@ Value getcheckpoint(const Array& params, bool fHelp)
 }
 
 
-// Peershares: reserve balance from being staked for network protection
+// peercoin: reserve balance from being staked for network protection
 Value reservebalance(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 2)
@@ -2360,13 +2360,13 @@ Value reservebalance(const Array& params, bool fHelp)
 }
 
 
-// Peershares: check wallet integrity
+// peercoin: check wallet integrity
 Value checkwallet(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 0)
         throw runtime_error(
             "checkwallet\n"
-            "Check wallet for integrity.\n");
+            "Check portfolio for integrity.\n");
 
     int nMismatchSpent;
     int64 nBalanceInQuestion;
@@ -2383,13 +2383,13 @@ Value checkwallet(const Array& params, bool fHelp)
 }
 
 
-// Peershares: repair wallet
+// peercoin: repair wallet
 Value repairwallet(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 0)
         throw runtime_error(
             "repairwallet\n"
-            "Repair wallet if checkwallet reports any problem.\n");
+            "Repair portfolio if checkwallet reports any problem.\n");
 
     int nMismatchSpent;
     int64 nBalanceInQuestion;
@@ -2405,7 +2405,7 @@ Value repairwallet(const Array& params, bool fHelp)
     return result;
 }
 
-// Peershares: make a public-private key pair
+// peercoin: make a public-private key pair
 Value makekeypair(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 1)
@@ -2439,7 +2439,7 @@ Value makekeypair(const Array& params, bool fHelp)
 extern CCriticalSection cs_mapAlerts;
 extern map<uint256, CAlert> mapAlerts;
 
-// Peershares: send alert.  
+// peercoin: send alert.  
 // There is a known deadlock situation with ThreadMessageHandler
 // ThreadMessageHandler: holds cs_vSend and acquiring cs_main in SendMessages()
 // ThreadRPCServer: holds cs_main and acquiring cs_vSend in alert.RelayTo()/PushMessage()/BeginMessage()
