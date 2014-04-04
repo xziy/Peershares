@@ -24,7 +24,7 @@
 using namespace std;
 using namespace boost;
 
-CWallet* pwalletMain;
+CPortfolio* pwalletMain;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -72,7 +72,7 @@ void Shutdown(void* parg)
         StopNode();
         DBFlush(true);
         boost::filesystem::remove(GetPidFile());
-        UnregisterWallet(pwalletMain);
+        UnregisterPortfolio(pwalletMain);
         delete pwalletMain;
         CreateThread(ExitTimeout, NULL);
         Sleep(50);
@@ -198,7 +198,7 @@ bool AppInit2(int argc, char* argv[])
             "  -timeout=<n>     \t  "   + _("Specify connection timeout (in milliseconds)") + "\n" +
             "  -proxy=<ip:port> \t  "   + _("Connect through socks4 proxy") + "\n" +
             "  -dns             \t  "   + _("Allow DNS lookups for addnode and connect") + "\n" +
-            "  -port=<port>     \t\t  " + _("Listen for connections on <port> (default: 9901 or testnet: 9903)") + "\n" +
+            "  -port=<port>     \t\t  " + _("Listen for connections on <port> (default: 9901 or testnet: 47891)") + "\n" +
             "  -maxconnections=<n>\t  " + _("Maintain at most <n> connections to peers (default: 125)") + "\n" +
             "  -addnode=<ip>    \t  "   + _("Add a node to connect to and attempt to keep the connection open") + "\n" +
             "  -connect=<ip>    \t\t  " + _("Connect only to the specified node") + "\n" +
@@ -235,7 +235,7 @@ bool AppInit2(int argc, char* argv[])
 #endif
             "  -rpcuser=<user>  \t  "   + _("Username for JSON-RPC connections") + "\n" +
             "  -rpcpassword=<pw>\t  "   + _("Password for JSON-RPC connections") + "\n" +
-            "  -rpcport=<port>  \t\t  " + _("Listen for JSON-RPC connections on <port> (default: 9902)") + "\n" +
+            "  -rpcport=<port>  \t\t  " + _("Listen for JSON-RPC connections on <port> (default: 47892)") + "\n" +
             "  -rpcallowip=<ip> \t\t  " + _("Allow JSON-RPC connections from specified IP address") + "\n" +
             "  -rpcconnect=<ip> \t  "   + _("Send commands to node running on <ip> (default: 127.0.0.1)") + "\n" +
             "  -blocknotify=<cmd> "     + _("Execute command when the best block changes (%s in cmd is replaced by block hash)") + "\n" +
@@ -384,21 +384,21 @@ bool AppInit2(int argc, char* argv[])
     }
     printf(" block index %15"PRI64d"ms\n", GetTimeMillis() - nStart);
 
-    InitMessage(_("Loading wallet..."));
-    printf("Loading wallet...\n");
+    InitMessage(_("Loading portfolio..."));
+    printf("Loading portfolio...\n");
     nStart = GetTimeMillis();
     bool fFirstRun;
-    pwalletMain = new CWallet("wallet.dat");
-    int nLoadWalletRet = pwalletMain->LoadWallet(fFirstRun);
-    if (nLoadWalletRet != DB_LOAD_OK)
+    pwalletMain = new CPortfolio("wallet.dat");
+    int nLoadPortfolioRet = pwalletMain->LoadPortfolio(fFirstRun);
+    if (nLoadPortfolioRet != DB_LOAD_OK)
     {
-        if (nLoadWalletRet == DB_CORRUPT)
-            strErrors << _("Error loading wallet.dat: Wallet corrupted") << "\n";
-        else if (nLoadWalletRet == DB_TOO_NEW)
-            strErrors << _("Error loading wallet.dat: Wallet requires newer version of Peershares") << "\n";
-        else if (nLoadWalletRet == DB_NEED_REWRITE)
+        if (nLoadPortfolioRet == DB_CORRUPT)
+            strErrors << _("Error loading wallet.dat: Portfolio corrupted") << "\n";
+        else if (nLoadPortfolioRet == DB_TOO_NEW)
+            strErrors << _("Error loading wallet.dat: Portfolio requires newer version of Peershares") << "\n";
+        else if (nLoadPortfolioRet == DB_NEED_REWRITE)
         {
-            strErrors << _("Wallet needed to be rewritten: restart Peershares to complete") << "\n";
+            strErrors << _("Portfolio needed to be rewritten: restart Peershares to complete") << "\n";
             printf("%s", strErrors.str().c_str());
             ThreadSafeMessageBox(strErrors.str(), _("Peershares"), wxOK | wxICON_ERROR | wxMODAL);
             return false;
@@ -412,14 +412,14 @@ bool AppInit2(int argc, char* argv[])
         int nMaxVersion = GetArg("-upgradewallet", 0);
         if (nMaxVersion == 0) // the -walletupgrade without argument case
         {
-            printf("Performing wallet upgrade to %i\n", FEATURE_LATEST);
+            printf("Performing portfolio upgrade to %i\n", FEATURE_LATEST);
             nMaxVersion = CLIENT_VERSION;
             pwalletMain->SetMinVersion(FEATURE_LATEST); // permanently upgrade the wallet immediately
         }
         else
-            printf("Allowing wallet upgrade up to %i\n", nMaxVersion);
+            printf("Allowing portfolio upgrade up to %i\n", nMaxVersion);
         if (nMaxVersion < pwalletMain->GetVersion())
-            strErrors << _("Cannot downgrade wallet") << "\n";
+            strErrors << _("Cannot downgrade portfolio") << "\n";
         pwalletMain->SetMaxVersion(nMaxVersion);
     }
 
@@ -439,14 +439,14 @@ bool AppInit2(int argc, char* argv[])
     printf("%s", strErrors.str().c_str());
     printf(" wallet      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
 
-    RegisterWallet(pwalletMain);
+    RegisterPortfolio(pwalletMain);
 
     CBlockIndex *pindexRescan = pindexBest;
     if (GetBoolArg("-rescan"))
         pindexRescan = pindexGenesisBlock;
     else
     {
-        CWalletDB walletdb("wallet.dat");
+        CPortfolioDB walletdb("wallet.dat");
         CBlockLocator locator;
         if (walletdb.ReadBestBlock(locator))
             pindexRescan = locator.GetBlockIndex();
@@ -456,7 +456,7 @@ bool AppInit2(int argc, char* argv[])
         InitMessage(_("Rescanning..."));
         printf("Rescanning last %i blocks (from block %i)...\n", pindexBest->nHeight - pindexRescan->nHeight, pindexRescan->nHeight);
         nStart = GetTimeMillis();
-        pwalletMain->ScanForWalletTransactions(pindexRescan, true);
+        pwalletMain->ScanForPortfolioTransactions(pindexRescan, true);
         printf(" rescan      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
     }
 
@@ -467,7 +467,7 @@ bool AppInit2(int argc, char* argv[])
     printf("mapBlockIndex.size() = %d\n",   mapBlockIndex.size());
     printf("nBestHeight = %d\n",            nBestHeight);
     printf("setKeyPool.size() = %d\n",      pwalletMain->setKeyPool.size());
-    printf("mapWallet.size() = %d\n",       pwalletMain->mapWallet.size());
+    printf("mapPortfolio.size() = %d\n",       pwalletMain->mapPortfolio.size());
     printf("mapAddressBook.size() = %d\n",  pwalletMain->mapAddressBook.size());
 
     if (!strErrors.str().empty())
@@ -477,7 +477,7 @@ bool AppInit2(int argc, char* argv[])
     }
 
     // Add wallet transactions that aren't already in a block to mapTransactions
-    pwalletMain->ReacceptWalletTransactions();
+    pwalletMain->ReacceptPortfolioTransactions();
 
     // Note: Peershares-Qt stores several settings in the wallet, so we want
     // to load the wallet BEFORE parsing command-line arguments, so

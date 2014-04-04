@@ -11,8 +11,8 @@
 using namespace std;
 
 // Protocol switch time of v0.3 kernel protocol
-unsigned int nProtocolV03SwitchTime     = 1394841600; // 2014-03-15 00:00:00 UTC
-unsigned int nProtocolV03TestSwitchTime = 1396224000; // 2014-03-31 00:00:00 UTC
+unsigned int nProtocolV03SwitchTime     = 1398816000; // 2014-04-30 00:00:00 UTC
+unsigned int nProtocolV03TestSwitchTime = 1398816000; // 2014-04-30 00:00:00 UTC
 
 // Modifier interval: time to elapse before new modifier is computed
 // Set to 6-hour for production network and 20-minute for test network
@@ -279,9 +279,10 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlock& blockFrom, unsigned 
     CBigNum bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
     int64 nValueIn = txPrev.vout[prevout.n].nValue;
-    // v0.3 protocol kernel hash weight starts from 0 at the 30-day min age
+    // peercoin: v0.3 protocol kernel hash weight starts from 0 at the 30-day min age
     // this change increases active coins participating the hash and helps
     // to secure the network when proof-of-stake difficulty is low
+    // peershares: v0.1 protocol default kernel hash weight starts from 0 at the 3-day min age
     int64 nTimeWeight = min((int64)nTimeTx - txPrev.nTime, (int64)STAKE_MAX_AGE) - (IsProtocolV03(nTimeTx)? nStakeMinAge : 0);
     CBigNum bnCoinDayWeight = CBigNum(nValueIn) * nTimeWeight / COIN / (24 * 60 * 60);
     // Calculate hash
