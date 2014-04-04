@@ -998,9 +998,11 @@ void MapPort(bool /* unused fMapPort */)
 // The second name should resolve to a list of seed addresses.
 // testnet dns seed begins with 't', all else are peershares dns seeds.
 static const char *strDNSSeed[][2] = {
-    {"VPSFuzzy", "37.188.117.96:9999"},
-    {"peercoinfaucet", "peershares.peercoinfaucet.com"},
-    {"tpeercoinfaucet", "tpeershares.peercoinfaucet.com"},
+    // NOTE: Only testnet nodes are included in this build. If you are using this
+    // for a real Peershares offering, you will want to remove the "t" that
+    // appears before the node name and IP
+    {"tPeershares NODE_2_EU-Ireland", "t54.72.105.68"},
+    {"tPeershares NODE_3_SE-A_Singapore", "t54.255.142.16"},
 };
 
 void ThreadDNSAddressSeed(void* parg)
