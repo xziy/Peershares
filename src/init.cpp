@@ -24,7 +24,7 @@
 using namespace std;
 using namespace boost;
 
-CPortfolio* pwalletMain;
+CWallet* pwalletMain;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -72,7 +72,7 @@ void Shutdown(void* parg)
         StopNode();
         DBFlush(true);
         boost::filesystem::remove(GetPidFile());
-        UnregisterPortfolio(pwalletMain);
+        UnregisterWallet(pwalletMain);
         delete pwalletMain;
         CreateThread(ExitTimeout, NULL);
         Sleep(50);
@@ -388,15 +388,15 @@ bool AppInit2(int argc, char* argv[])
     printf("Loading portfolio...\n");
     nStart = GetTimeMillis();
     bool fFirstRun;
-    pwalletMain = new CPortfolio("wallet.dat");
-    int nLoadPortfolioRet = pwalletMain->LoadPortfolio(fFirstRun);
-    if (nLoadPortfolioRet != DB_LOAD_OK)
+    pwalletMain = new CWallet("wallet.dat");
+    int nLoadWalletRet = pwalletMain->LoadWallet(fFirstRun);
+    if (nLoadWalletRet != DB_LOAD_OK)
     {
-        if (nLoadPortfolioRet == DB_CORRUPT)
+        if (nLoadWalletRet == DB_CORRUPT)
             strErrors << _("Error loading wallet.dat: Portfolio corrupted") << "\n";
-        else if (nLoadPortfolioRet == DB_TOO_NEW)
+        else if (nLoadWalletRet == DB_TOO_NEW)
             strErrors << _("Error loading wallet.dat: Portfolio requires newer version of Peershares") << "\n";
-        else if (nLoadPortfolioRet == DB_NEED_REWRITE)
+        else if (nLoadWalletRet == DB_NEED_REWRITE)
         {
             strErrors << _("Portfolio needed to be rewritten: restart Peershares to complete") << "\n";
             printf("%s", strErrors.str().c_str());
@@ -439,14 +439,14 @@ bool AppInit2(int argc, char* argv[])
     printf("%s", strErrors.str().c_str());
     printf(" wallet      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
 
-    RegisterPortfolio(pwalletMain);
+    RegisterWallet(pwalletMain);
 
     CBlockIndex *pindexRescan = pindexBest;
     if (GetBoolArg("-rescan"))
         pindexRescan = pindexGenesisBlock;
     else
     {
-        CPortfolioDB walletdb("wallet.dat");
+        CWalletDB walletdb("wallet.dat");
         CBlockLocator locator;
         if (walletdb.ReadBestBlock(locator))
             pindexRescan = locator.GetBlockIndex();
@@ -456,7 +456,7 @@ bool AppInit2(int argc, char* argv[])
         InitMessage(_("Rescanning..."));
         printf("Rescanning last %i blocks (from block %i)...\n", pindexBest->nHeight - pindexRescan->nHeight, pindexRescan->nHeight);
         nStart = GetTimeMillis();
-        pwalletMain->ScanForPortfolioTransactions(pindexRescan, true);
+        pwalletMain->ScanForWalletTransactions(pindexRescan, true);
         printf(" rescan      %15"PRI64d"ms\n", GetTimeMillis() - nStart);
     }
 
@@ -467,7 +467,7 @@ bool AppInit2(int argc, char* argv[])
     printf("mapBlockIndex.size() = %d\n",   mapBlockIndex.size());
     printf("nBestHeight = %d\n",            nBestHeight);
     printf("setKeyPool.size() = %d\n",      pwalletMain->setKeyPool.size());
-    printf("mapPortfolio.size() = %d\n",       pwalletMain->mapPortfolio.size());
+    printf("mapWallet.size() = %d\n",       pwalletMain->mapWallet.size());
     printf("mapAddressBook.size() = %d\n",  pwalletMain->mapAddressBook.size());
 
     if (!strErrors.str().empty())
@@ -477,7 +477,7 @@ bool AppInit2(int argc, char* argv[])
     }
 
     // Add wallet transactions that aren't already in a block to mapTransactions
-    pwalletMain->ReacceptPortfolioTransactions();
+    pwalletMain->ReacceptWalletTransactions();
 
     // Note: Peershares-Qt stores several settings in the wallet, so we want
     // to load the wallet BEFORE parsing command-line arguments, so
