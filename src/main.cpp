@@ -308,16 +308,16 @@ bool CTransaction::IsStandard() const
     BOOST_FOREACH(const CTxOut& txout, vout)
         if (!::IsStandard(txout.scriptPubKey, whichType)){
             return false;
-		}
-		if (whichType == TX_NULL_DATA)
-			nDataOut++;
-		
-		
-		if (nDataOut > 1) {
-			return false;
-		}
-            
-            
+        }
+    if (whichType == TX_NULL_DATA)
+        nDataOut++;
+
+
+    if (nDataOut > 1) {
+        return false;
+    }
+
+
     return true;
 }
 

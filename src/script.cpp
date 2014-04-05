@@ -1304,10 +1304,10 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             }
             else if (opcode2 == OP_SMALLDATA)
             {
-				//small pushdata, <= 80bytes
-				if (vch1.size() > 80)
-				break;
-			}
+                //small pushdata, <= 80bytes
+                if (vch1.size() > 80)
+                    break;
+            }
             else if (opcode1 != opcode2 || vch1 != vch2)
             {
                 // Others must match exactly
@@ -1407,7 +1407,7 @@ int ScriptSigArgsExpected(txnouttype t, const std::vector<std::vector<unsigned c
     case TX_NONSTANDARD:
         return -1;
     case TX_NULL_DATA:
-		return 1;
+        return 1;
     case TX_PUBKEY:
         return 1;
     case TX_PUBKEYHASH:
@@ -1503,7 +1503,7 @@ bool ExtractAddress(const CScript& scriptPubKey, CBitcoinAddress& addressRet)
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
     if (whichType == TX_NULL_DATA)
-		return true;
+        return true;
 
     if (whichType == TX_PUBKEY)
     {
