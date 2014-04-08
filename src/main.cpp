@@ -1195,7 +1195,9 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const CBloc
         double                                EventHorizonDeviationSlow;
         
     if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || (uint64)BlockLastSolved->nHeight < PastBlocksMin) { return bnProofOfWorkLimit.GetCompact(); }
-        
+	
+        int64 LatestBlockTime = BlockLastSolved->GetBlockTime();
+		
         for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
                 if (PastBlocksMax > 0 && i > PastBlocksMax) { break; }
                 PastBlocksMass++;
