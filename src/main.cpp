@@ -1203,11 +1203,25 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const CBloc
                 if (i == 1)        { PastDifficultyAverage.SetCompact(BlockReading->nBits); }
                 else                { PastDifficultyAverage = ((CBigNum().SetCompact(BlockReading->nBits) - PastDifficultyAveragePrev) / i) + PastDifficultyAveragePrev; }
                 PastDifficultyAveragePrev = PastDifficultyAverage;
+				
+				if (BlockReading->nHeight > 646120 && LatestBlockTime < BlockReading->GetBlockTime()) {
+					//eliminates the ability to go back in time
+					LatestBlockTime = BlockReading->GetBlockTime();
+				}
                 
                 PastRateActualSeconds                        = BlockLastSolved->GetBlockTime() - BlockReading->GetBlockTime();
                 PastRateTargetSeconds                        = TargetBlocksSpacingSeconds * PastBlocksMass;
                 PastRateAdjustmentRatio                        = double(1);
-                if (PastRateActualSeconds < 0) { PastRateActualSeconds = 0; }
+				
+				if (BlockReading->nHeight > 646120){
+					//this should slow down the upward difficulty change
+					if (PastRateActualSeconds < 5) { PastRateActualSeconds = 5; }
+				}
+				else {
+					if (PastRateActualSeconds < 0) { PastRateActualSeconds = 0; }
+				}
+
+				
                 if (PastRateActualSeconds != 0 && PastRateTargetSeconds != 0) {
                 PastRateAdjustmentRatio                        = double(PastRateTargetSeconds) / double(PastRateActualSeconds);
                 }
