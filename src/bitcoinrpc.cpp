@@ -3131,7 +3131,7 @@ std::string CallPeercoinRPC(const std::string &strMethod, const Array &params)
         throw runtime_error(strprintf(
             _("You must set rpcpassword=<password> in the Peercoin configuration file:\n%s\n"
               "If the file does not exist, create it with owner-readable-only file permissions."),
-                GetConfigFile().string().c_str()));
+                GetPeercoinConfigFile().string().c_str()));
 
     // Connect to localhost
     bool fUseSSL = GetBoolArg("-rpcssl");
