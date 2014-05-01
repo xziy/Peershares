@@ -3934,6 +3934,15 @@ static bool fGenerateBitcoins = false;
 static bool fLimitProcessors = false;
 static int nLimitProcessors = -1;
 
+void SetMintWarning(const string& strNewWarning)
+{
+    if (strMintWarning != strNewWarning)
+    {
+        strMintWarning = strNewWarning;
+        MainFrameRepaint();
+    }
+}
+
 void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 {
     printf("PeerMiner started for proof-of-%s\n", fProofOfStake? "stake" : "work");
@@ -3958,10 +3967,10 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
 
         while (pwallet->IsLocked())
         {
-            strMintWarning = strMintMessage;
+            SetMintWarning(strMintMessage);
             Sleep(1000);
         }
-        strMintWarning = "";
+        SetMintWarning("");
 
         //
         // Create new block
@@ -3982,10 +3991,10 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
             {
                 if (!pblock->SignBlock(*pwalletMain))
                 {
-                    strMintWarning = strMintMessage;
+                    SetMintWarning(strMintMessage);
                     continue;
                 }
-                strMintWarning = "";
+                SetMintWarning("");
                 printf("CPUMinter : proof-of-stake block found %s\n", pblock->GetHash().ToString().c_str()); 
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
                 CheckWork(pblock.get(), *pwalletMain, reservekey);
@@ -4040,10 +4049,10 @@ void BitcoinMiner(CWallet *pwallet, bool fProofOfStake)
                     assert(hash == pblock->GetHash());
                     if (!pblock->SignBlock(*pwalletMain))
                     {
-                        strMintWarning = strMintMessage;
+                        SetMintWarning(strMintMessage);
                         break;
                     }
-                    strMintWarning = "";
+                    SetMintWarning("");
                     SetThreadPriority(THREAD_PRIORITY_NORMAL);
                     CheckWork(pblock.get(), *pwalletMain, reservekey);
                     SetThreadPriority(THREAD_PRIORITY_LOWEST);
