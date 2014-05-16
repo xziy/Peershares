@@ -48,7 +48,7 @@ Var StartMenuGroup
 !insertmacro MUI_LANGUAGE English
 
 # Installer attributes
-OutFile peershares-0.3.0-win-setup.exe
+OutFile Peershares-0.3.0-win-setup.exe
 !if "" == "64"
 InstallDir $PROGRAMFILES64\Peershares
 !else
@@ -77,7 +77,7 @@ Section -Main SEC0000
     File /oname=license.txt ../COPYING
     File /oname=readme.txt ../doc/README_windows.txt
     SetOutPath $INSTDIR\daemon
-    File ../src/peersharesd.exe
+    File ../release/peersharesd.exe
 #    SetOutPath $INSTDIR\doc
 #    File /r ../doc\*.*
 #    SetOutPath $INSTDIR\src
