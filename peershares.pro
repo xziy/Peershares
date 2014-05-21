@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = peershares-qt
+TARGET = peershares
 VERSION = 0.6.3.0
 INCLUDEPATH += src src/json src/qt
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
@@ -15,18 +15,18 @@ CONFIG += no_include_pwd
 #    BOOST_LIB_PATH, BDB_INCLUDE_PATH, BDB_LIB_PATH
 #    OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
 
-BOOST_INCLUDE_PATH=/opt/local/include/boost
-BOOST_LIB_PATH=/opt/local/lib
-BDB_INCLUDE_PATH=/opt/local/include/db48
-BDB_LIB_PATH=/opt/local/lib/db48
-OPENSSL_INCLUDE_PATH=/opt/local/include/openssl
-OPENSSL_LIB_PATH=/opt/local/lib
+#BOOST_INCLUDE_PATH=/opt/local/include/boost
+#BOOST_LIB_PATH=/opt/local/lib
+#BDB_INCLUDE_PATH=/opt/local/include/db48
+#BDB_LIB_PATH=/opt/local/lib/db48
+#OPENSSL_INCLUDE_PATH=/opt/local/include/openssl
+#OPENSSL_LIB_PATH=/opt/local/lib
 
-MINIUPNPC_INCLUDE_PATH=/opt/local/include/miniupnpc
-MINIUPNPC_LIB_PATH=/opt/local/lib
+#MINIUPNPC_INCLUDE_PATH=/opt/local/include/miniupnpc
+#MINIUPNPC_LIB_PATH=/opt/local/lib
 
-QRENCODE_INCLUDE_PATH=/opt/local/include
-QRENCODE_LIB_PATH=/opt/local/lib
+#QRENCODE_INCLUDE_PATH=/opt/local/include
+#QRENCODE_LIB_PATH=/opt/local/lib
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -351,7 +351,7 @@ macx:OBJECTIVE_SOURCES += src/qt/macdockiconhandler.mm
 macx:LIBS += -framework Foundation -framework ApplicationServices -framework AppKit
 macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0
 macx:ICON = src/qt/res/icons/peershares.icns
-macx:TARGET = "Peershares-Qt"
+macx:TARGET = "Peershares"
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
 INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
