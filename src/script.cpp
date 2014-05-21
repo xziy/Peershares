@@ -1503,7 +1503,7 @@ bool ExtractAddress(const CScript& scriptPubKey, CBitcoinAddress& addressRet)
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
     if (whichType == TX_NULL_DATA)
-        return true;
+        return false;
 
     if (whichType == TX_PUBKEY)
     {
