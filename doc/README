@@ -1,4 +1,4 @@
-#Peershares
+# Peershares
 -----------
 Copyright (c) 2011-2014 Peershares Developers
 Copyright (c) 2011-2014 PPCoin Developers
@@ -9,7 +9,7 @@ This product includes software developed by the OpenSSL Project for use in
 the OpenSSL Toolkit (http://www.openssl.org/).  This product includes
 cryptographic software written by Eric Young (eay@cryptsoft.com).
 
-#What is Peershares?
+# What is Peershares?
 --------------------
 Peershares is an inexpensive and decentralized ledger to be used by 
 businesses for tracking share ownership and distributing dividends in an automated fashion. 
@@ -28,7 +28,7 @@ or if they would prefer, can then take those dividends and convert them to anoth
 
 A share issuer is not vulnerable to the failure of single stock exchange such as BTC Trading or Litecoin Global.
 
-#Setup
+# Setup
 ------
 Unpack the files into a directory and run:
  bin/32/Peershares (GUI, 32-bit)
@@ -42,7 +42,7 @@ or forward port 9901 (TCP) to your computer so you can receive
 incoming connections.  Peershares works without incoming connections,
 but allowing incoming connections helps the Peershares network.
 
-#Resources
+# Resources
 ----------
 Source Code: https://github.com/Peershares/Peershares
 Wiki Page: https://github.com/Peershares/Peershares/wiki
