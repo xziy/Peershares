@@ -7,14 +7,14 @@ Peershares are an inexpensive and decentralized ledger to be used by businesses 
 
 Using Peershares, individuals, businesses, or organizations of any size could raise funding through an initial offering without depending on a third party such as a stock exchange. While trading shares through exchanges will be useful to provide liquidity, Peershares can be traded on any number of exchanges just as Peercoins can. 
 
-Each business using Peershares will have their own blockchain that is independent of all others. Blockchains can be secured cheaply and easily using Peercoin's proof-of-stake, once the initial (issuer-controlled) shares has been generated using proof-of-work.
+Each business using Peershares will have their own blockchain that is independent of all others. Blockchains can be secured cheaply and easily using Peercoin's proof-of-stake, once the initial (issuer-controlled) quantity of shares have been generated using proof-of-work.
 
 Issuers can distribute dividends as Peercoins, which can then be held by the investors, or if they would prefer, can then take those dividends and convert them to another cryptocurrency or fiat through their preferred exchange.
 
 A share issuer is not vulnerable to the failure of single stock exchange such as BTC Trading or Litecoin Global. 
 
 ### Peershares Resources
-* Source: [Source Code](https://github.com/Peershares/Peershares), Client Binaries (WIP)
+* Source: [Source Code](https://github.com/Peershares/Peershares), [Client Binaries](https://github.com/Peerunity/Peerunity/releases/tag/v0.1.0) (current release: 0.1.0)
 * Documentation: [Peershares Whitepaper](http://www.peercointalk.org/index.php?action=dlattach;topic=527.0;attach=96), [Peershares Wiki](https://github.com/Peershares/Peershares/wiki)
 * Support: [Peershares Forum](http://www.peercointalk.org/index.php?board=61.0)
 
