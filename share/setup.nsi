@@ -5,7 +5,7 @@ SetCompressor /SOLID lzma
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 0.8.5.4
+!define VERSION 0.8.5.5
 !define COMPANY "Franko Collective"
 !define URL http://www.frankos.org
 
