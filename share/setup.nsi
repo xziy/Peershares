@@ -51,7 +51,7 @@ CRCCheck on
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion 0.8.5.3
+VIProductVersion 0.8.5.5
 VIAddVersionKey ProductName Franko
 VIAddVersionKey ProductVersion "${VERSION}"
 VIAddVersionKey CompanyName "${COMPANY}"
