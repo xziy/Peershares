@@ -1194,10 +1194,12 @@ void MapPort(bool)
 static const char *strMainNetDNSSeed[][2] = {
     {"frankos.org","dnsseed.frankos.org"}, // US-EAST
     {"briefcaseit.com","tokyo.briefcaseit.com"}, //JAPAN,TOKYO
-    {"copiamarket.com","dnsseed.copiamarket.com"}, //US
-    {"dencoinpools.com","frk.dencoinpools.com"},//US
-    {"crypto-knight.org","www.crypto-knight.org"},//US
-    {"frankopedia.com","www.frankopedia.com"},//US
+    {"2.frankos.org","seed2.frankos.org"}, //US
+    {"3.frankos.org","seed3.frankos.org"},//US
+    {"4.frankos.org","seed4.frankos.org"},//US
+    {"5.frankos.org","seed5.frankos.org"},//US
+	{"6.frankos.org","seed6.frankos.org"},//US
+	{"7.frankos.org","seed7.frankos.org"},//US
     {NULL, NULL}
 };
 
