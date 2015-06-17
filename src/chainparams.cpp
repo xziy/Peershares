@@ -199,7 +199,7 @@ public:
         fTestnetToBeDeprecatedFieldRPC = false;
 
         // Franko: Mainnet v2 enforced as of block 710k
-        nEnforceV2AfterHeight = 400000;
+        nEnforceV2AfterHeight = 2000000;
     }
 
     const Checkpoints::CCheckpointData& Checkpoints() const 
