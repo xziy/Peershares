@@ -9,7 +9,6 @@ src/test/test_franko
 src/qt/test/test_franko-qt
 
 # autoreconf
-Makefile.in
 aclocal.m4
 autom4te.cache/
 build-aux/config.guess
@@ -73,7 +72,6 @@ src/qt/test/moc*.cpp
 
 # Compilation and Qt preprocessor part
 *.qm
-Makefile
 franko-qt
 Franko-Qt.app
 
