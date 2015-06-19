@@ -66,6 +66,7 @@ script: |
   export PATH=${WRAP_DIR}:${PATH}
 
   cd franko
+  chmod -R 777 depends
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
@@ -73,6 +74,7 @@ script: |
   done
 
   # Create the release tarball using (arbitrarily) the first host
+  chmod +x autogen.sh
   ./autogen.sh
   ./configure --prefix=${BASEPREFIX}/`echo "${HOSTS}" | awk '{print $1;}'`
   make dist
@@ -97,7 +99,7 @@ script: |
     tar --strip-components=1 -xf ../$SOURCEDIST
 
     ./configure --prefix=${BASEPREFIX}/${i} --bindir=${INSTALLPATH}/bin --includedir=${INSTALLPATH}/include --libdir=${INSTALLPATH}/lib --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS}
-    make ${MAKEOPTS}
+	make ${MAKEOPTS}
     make deploy
     make install-strip
     cp -f franko-*setup*.exe $OUTDIR/
