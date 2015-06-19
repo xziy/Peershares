@@ -40,7 +40,7 @@
       <key>CFBundleTypeRole</key>
       <string>Editor</string>
       <key>CFBundleURLName</key>
-      <string>org.franko.LitecoinPayment</string>
+      <string>org.franko.FrankoPayment</string>
       <key>CFBundleURLSchemes</key>
       <array>
         <string>franko</string>
