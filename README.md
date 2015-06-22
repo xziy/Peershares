@@ -1,6 +1,8 @@
 
 # Peershares Official Development Repo
 
+[![Join the chat at https://gitter.im/Peershares/Peershares](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Peershares/Peershares?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is Peershares?
 
 Peershares are an inexpensive and decentralized ledger to be used by businesses for tracking share ownership and distributing dividends in an automated fashion. Shares can be transferred and held just like other cryptocurrency units, such as peercoins or bitcoins.
