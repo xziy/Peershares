@@ -156,13 +156,14 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const CBloc
         bnNew /= PastRateTargetSeconds;
     }
     if (bnNew > bnProofOfWorkLimit) { bnNew = bnProofOfWorkLimit; }
-
+   
+    if(fDebug){
     /// debug print
     LogPrintf("Difficulty Retarget - Kimoto Gravity Well\n");
     LogPrintf("PastRateAdjustmentRatio = %g\n", PastRateAdjustmentRatio);
     LogPrintf("Before: %08x  %s\n", BlockLastSolved->nBits, CBigNum().SetCompact(BlockLastSolved->nBits).getuint256().ToString().c_str());
     LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
-
+    }
     return bnNew.GetCompact();
 }
 
