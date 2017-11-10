@@ -21,7 +21,7 @@ using namespace boost;
 //
 // Global state
 //
-static const uint256 hashGenesisBlockOfficial("0x000000d78e35e381ca738ceb855b9faf528f0970d994ce4eb4560b56cbe2f6c4");
+static const uint256 hashGenesisBlockOfficial("0x4bc6f04f9436af757a38f7df4c044417f48425e32c4f057adac6000fadc6b46f");
 static const uint256 hashGenesisBlockTestNet ("0x0000013585f2f416fae10cb9dfe7b93f4628802c27fab1ce54e6a47ead252568");
 
 CCriticalSection cs_setpwalletRegistered;
@@ -2258,9 +2258,9 @@ bool LoadBlockIndex(bool fAllowNew)
         //   vMerkleTree: 4a5e1e
 
         // Genesis block
-        const char* pszTimestamp = "intentionally broken genesis block - build is for public testnet only!";
-        unsigned int nTimeGenesis=1231231231;
-        unsigned int nNonceGenesis=123123;
+        const char* pszTimestamp = "11 Nov 2017 test Bonfara Monero";
+        unsigned int nTimeGenesis=1510339532;
+        unsigned int nNonceGenesis=200204;
 
         if (fTestNet)
         {
@@ -2310,7 +2310,7 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
         if (!fTestNet)
-            assert(block.hashMerkleRoot == uint256("0xf88246c72a053cc2176dbf2ac773bcf79f021bba9c2c3c8fccc0735c37d9354c"));
+            assert(block.hashMerkleRoot == uint256("0xa2c53f7160b79b5581a3b45a7b384f1e78fdcb35ee93f1c866a2abd2477ad11a"));
         else
             assert(block.hashMerkleRoot == uint256("0xde9e0c68d6503ae8c0c3d368b200dfc403192cdf926041565fe9de22be8ee1a4"));
 
